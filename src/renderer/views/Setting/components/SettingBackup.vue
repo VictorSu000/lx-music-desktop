@@ -6,7 +6,9 @@ dd
     base-btn.btn.gap-left(min @click="handleImportPlayList") {{ $t('setting__backup_part_import_list') }}
     base-btn.btn.gap-left(min @click="handleExportPlayList") {{ $t('setting__backup_part_export_list') }}
     base-btn.btn.gap-left(min @click="handleImportSetting") {{ $t('setting__backup_part_import_setting') }}
-    base-btn.btn.gap-left(min @click="handleExportSetting") {{$t('setting__backup_part_export_setting')}}
+    base-btn.btn.gap-left(min @click="handleExportSetting") {{ $t('setting__backup_part_export_setting') }}
+    base-btn.btn.gap-left(min @click="handleImportPlayListFromWeb") {{ '从网盘导入歌单' }}
+    base-btn.btn.gap-left(min @click="handleExportPlayListToWeb") {{ '导出歌单到网盘' }}
 dd
   h3#backup_all {{ $t('setting__backup_all') }}
   div
@@ -43,6 +45,7 @@ import { LIST_IDS } from '@common/constants'
 import { defaultList, loveList, userLists } from '@renderer/store/list/state'
 import { appSetting, updateSetting } from '@renderer/store/setting'
 import migrateSetting from '@common/utils/migrateSetting'
+import { saveLxConfigFileWebDAV, readLxConfigFileWebDAV } from '@common/utils/webdav'
 
 
 export default {
@@ -256,15 +259,28 @@ export default {
       })
     }
 
-    const importPlayList = async(path) => {
+    const handleExportPlayListToWeb = async() => {
+      const data = {
+        type: 'playList_v2',
+        data: await getAllLists(),
+      }
+      saveLxConfigFileWebDAV(data, (message) => { dialog({ message, confirmButtonText: '好的' }) })
+    }
+
+    const handleImportPlayListFromWeb = async() => {
       let listData
       try {
-        listData = await window.lx.worker.main.readLxConfigFile(path)
+        listData = await readLxConfigFileWebDAV()
       } catch (error) {
-        return
+        dialog({ message: '导入云端歌单失败，' + error, confirmButtonText: '好的' })
       }
-      console.log(listData.type)
 
+      if (await doImportPlayList(listData) === null) {
+        dialog({ message: '导入云端歌单成功', confirmButtonText: '好的' })
+      }
+    }
+
+    const doImportPlayList = async(listData) => {
       switch (listData.type) {
         case 'defautlList': // 兼容0.6.2及以前版本的列表数据
           await overwriteListMusics({ listId: LIST_IDS.DEFAULT, musicInfos: filterMusicList(listData.data.list.map(m => toNewMusicInfo(m))) })
@@ -275,8 +291,23 @@ export default {
         case 'playList_v2':
           await importNewListData(listData.data)
           break
-        default: return showImportTip(listData.type)
+        default:
+          console.error('listData.type', listData.type)
+          return showImportTip(listData.type)
       }
+      return null
+    }
+
+    const importPlayList = async(path) => {
+      let listData
+      try {
+        listData = await window.lx.worker.main.readLxConfigFile(path)
+      } catch (error) {
+        return
+      }
+      console.log(listData.type)
+
+      doImportPlayList()
     }
     const handleImportPlayList = () => {
       showSelectDialog({
@@ -373,6 +404,8 @@ export default {
       // currentStting,
       handleExportPlayList,
       handleImportPlayList,
+      handleImportPlayListFromWeb,
+      handleExportPlayListToWeb,
       handleExportSetting,
       handleImportSetting,
       handleExportAllData,
