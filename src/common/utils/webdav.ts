@@ -22,7 +22,7 @@ export const saveLxConfigFileWebDAV = async(data: any, callback: Function) => {
     })
 }
   
-export const readLxConfigFileWebDAV = async (): Promise<any> => {
+export const readLxConfigFileWebDAV = async () => {
     const rawData : Buffer= await new Promise((resolve, reject) => {
         wfs.readFile(configFile, "binary", (err, data) => {
             if (err) {
