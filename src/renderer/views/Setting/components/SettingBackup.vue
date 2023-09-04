@@ -323,7 +323,7 @@ export default {
       }
       console.log(listData.type)
 
-      doImportPlayList()
+      await doImportPlayList(listData)
     }
     const handleImportPlayList = () => {
       showSelectDialog({
