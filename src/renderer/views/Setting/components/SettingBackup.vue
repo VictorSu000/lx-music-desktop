@@ -268,6 +268,22 @@ export default {
     }
 
     const handleImportPlayListFromWeb = async() => {
+      // 导入前先备份一次
+      const dateStr = new Date().toLocaleString('zh', {
+        hour12: false,
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }).replace(/\/|:|\s/g, '-')
+
+      const backupPath = `./lx_list_${dateStr}.bak.lxmc`
+      console.log('backup playlist before import from webDAV:', backupPath)
+      await exportPlayList(backupPath)
+
       let listData
       try {
         listData = await readLxConfigFileWebDAV()
