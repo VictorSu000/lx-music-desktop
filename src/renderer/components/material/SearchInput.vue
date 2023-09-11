@@ -8,7 +8,7 @@
           :placeholder="placeholder"
           @focus="handleFocus"
           @blur="handleBlur"
-          @input="$emit('update:model-value', text)"
+          @input="$emit('update:modelValue', text)"
           @change="sendEvent('change')"
           @keyup.enter="handleSearch"
           @keydown.arrow-down.arrow-up.prevent
@@ -82,7 +82,7 @@ export default {
       default: false,
     },
   },
-  emits: ['update:model-value', 'event'],
+  emits: ['update:modelValue', 'event'],
   data() {
     return {
       isShow: false,
@@ -141,7 +141,7 @@ export default {
     },
     handleSearch() {
       this.hideList()
-      if (this.selectIndex < 0) return this.sendEvent('submit')
+      if (this.selectIndex < 0) { this.sendEvent('submit'); return }
       this.sendEvent('listClick', this.selectIndex)
     },
     showList() {
@@ -162,10 +162,18 @@ export default {
       })
     },
     handleKeyDown() {
-      this.selectIndex = this.selectIndex + 1 < this.list.length ? this.selectIndex + 1 : 0
+      if (this.list.length) {
+        this.selectIndex = this.selectIndex + 1 < this.list.length ? this.selectIndex + 1 : 0
+      } else if (this.selectIndex > -1) {
+        this.selectIndex = -1
+      }
     },
     handleKeyUp() {
-      this.selectIndex = this.selectIndex - 1 < -1 ? this.list.length - 1 : this.selectIndex - 1
+      if (this.list.length) {
+        this.selectIndex = this.selectIndex - 1 < -1 ? this.list.length - 1 : this.selectIndex - 1
+      } else if (this.selectIndex > -1) {
+        this.selectIndex = -1
+      }
     },
     handleContextMenu() {
       let str = clipboardReadText()
@@ -174,11 +182,11 @@ export default {
       str = str.replace(/\s+/g, ' ')
       let dom_input = this.$refs.dom_input
       this.text = this.text.substring(0, dom_input.selectionStart) + str + this.text.substring(dom_input.selectionEnd, this.text.length)
-      this.$emit('update:model-value', this.text)
+      this.$emit('update:modelValue', this.text)
     },
     handleClearList() {
       this.text = ''
-      this.$emit('update:model-value', this.text)
+      this.$emit('update:modelValue', this.text)
       this.sendEvent('submit')
     },
   },

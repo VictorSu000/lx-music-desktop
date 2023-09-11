@@ -52,7 +52,7 @@ export default {
         return
       }
       const { temp_source } = await getSearchSetting()
-      prevTempSearchSource = temp_source
+      prevTempSearchSource ||= temp_source
       music[prevTempSearchSource].tipSearch.search(searchText.value).then(list => {
         tipList.value = list
       }).catch(() => {})
@@ -97,7 +97,7 @@ export default {
           break
         case 'listClick':
           searchText.value = tipList.value[data]
-          nextTick(handleSearch)
+          void nextTick(handleSearch)
       }
     }
 

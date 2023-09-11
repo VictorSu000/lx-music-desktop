@@ -1,8 +1,8 @@
-import fs from 'fs'
-import crypto from 'crypto'
-import { gzip, gunzip } from 'zlib'
+import fs from 'node:fs'
+import crypto from 'node:crypto'
+import { gzip, gunzip } from 'node:zlib'
+import path from 'node:path'
 import { log } from '@common/utils'
-import path from 'path'
 
 export const joinPath = (...paths: string[]): string => path.join(...paths)
 
@@ -15,7 +15,7 @@ export const dirname = (p: string): string => path.dirname(p)
  * @param {*} path 路径
  */
 export const checkPath = async(path: string): Promise<boolean> => {
-  return await new Promise(resolve => {
+  return new Promise(resolve => {
     if (!path) {
       resolve(false)
       return
@@ -31,7 +31,7 @@ export const checkPath = async(path: string): Promise<boolean> => {
 }
 
 export const getFileStats = async(path: string): Promise<fs.Stats | null> => {
-  return await new Promise(resolve => {
+  return new Promise(resolve => {
     if (!path) {
       resolve(null)
       return
@@ -97,7 +97,7 @@ export const readFile = async(path: string) => fs.promises.readFile(path)
 export const toMD5 = (str: string) => crypto.createHash('md5').update(str).digest('hex')
 
 export const gzipData = async(str: string): Promise<Buffer> => {
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     gzip(str, (err, result) => {
       if (err) {
         reject(err)
@@ -109,7 +109,7 @@ export const gzipData = async(str: string): Promise<Buffer> => {
 }
 
 export const gunzipData = async(buf: Buffer): Promise<string> => {
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     gunzip(buf, (err, result) => {
       if (err) {
         reject(err)

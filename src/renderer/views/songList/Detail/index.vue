@@ -45,7 +45,6 @@
 import { ref, watch } from '@common/utils/vueTools'
 import { listDetailInfo } from '@renderer/store/songList/state'
 import { setVisibleListDetail } from '@renderer/store/songList/action'
-import LX from '@renderer/types/lx'
 import { useRouter } from '@common/utils/vueRouter'
 import { addSongListDetail, playSongListDetail } from './action'
 import useList from './useList'
@@ -68,7 +67,7 @@ interface Query {
   fromName?: string
 }
 
-const verifyQueryParams = async function(this: any, to: { query: Query, path: string}, from: any, next: (route?: { path: string; query: Query }) => void) {
+const verifyQueryParams = async function(this: any, to: { query: Query, path: string }, from: any, next: (route?: { path: string, query: Query }) => void) {
   let _source = to.query.source
   let _id = to.query.id
   let _page: string | undefined = to.query.page
@@ -119,25 +118,25 @@ export default {
 
 
     const togglePage = (page: number) => {
-      getListData(source.value, id.value, page, refresh.value)
+      void getListData(source.value, id.value, page, refresh.value)
     }
 
     const handleBack = () => {
       setVisibleListDetail(false)
-      if (window.lx.songListInfo.fromName) router.replace({ name: window.lx.songListInfo.fromName })
+      if (window.lx.songListInfo.fromName) void router.replace({ name: window.lx.songListInfo.fromName })
       else router.back()
     }
 
     useKeyBack(handleBack)
 
-    watch([source, id, page, refresh], ([_source, _id, _page, _refresh]) => {
+    watch([source, id, page, refresh], async([_source, _id, _page, _refresh]) => {
       if (!_source || !_id) return router.replace({ path: '/songList/list' })
       // console.log(_source, _id, _page, _refresh, picUrl.value)
       // source.value = _source
       // id.value = _id
       // refresh.value = _refresh
       // page.value = _page ?? 1
-      getListData(_source, _id, _page, _refresh)
+      void getListData(_source, _id, _page, _refresh)
     }, {
       immediate: true,
     })
@@ -172,13 +171,13 @@ export default {
   flex-flow: column nowrap;
 }
 
-.song-list-header {
+.songListHeader {
   flex: none;
   display: flex;
   flex-flow: row nowrap;
   height: 80px;
 }
-.song-list-header-left {
+.songListHeaderLeft {
   flex: none;
   margin-left: 15px;
   height: 100%;
@@ -191,7 +190,7 @@ export default {
   opacity: .9;
   box-shadow: 0 0 2px 0 rgba(0,0,0,.2);
 }
-.play-num {
+.playNum {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -204,7 +203,7 @@ export default {
   .mixin-ellipsis-1;
 }
 
-.song-list-header-middle {
+.songListHeaderMiddle {
   flex: auto;
   padding: 2px 7px;
   h3 {
@@ -220,13 +219,13 @@ export default {
     color: var(--color-font-label);
   }
 }
-.song-list-header-right {
+.songListHeaderRight {
   flex: none;
   display: flex;
   align-items: center;
   padding-right: 15px;
 
-  .header-right-btn {
+  .headerRightBtn {
     border-radius: 0;
     &:first-child {
       border-top-left-radius: 4px;

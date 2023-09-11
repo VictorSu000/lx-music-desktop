@@ -13,19 +13,15 @@ declare global {
             keyInfo: ClientKeyInfo
             urlInfo: UrlInfo
           }
-
-          onRemoteEvent: <T extends keyof LX.Sync.ActionSyncSendType>(
-            eventName: T,
-            handler: (data: LX.Sync.ActionSyncSendType[T]) => (void | Promise<void>)
-          ) => () => void
+          moduleReadys: {
+            list: boolean
+            dislike: boolean
+          }
 
           onClose: (handler: (err: Error) => (void | Promise<void>)) => () => void
-
-          sendData: <T extends keyof LX.Sync.ActionSyncType>(
-            eventName: T,
-            data?: LX.Sync.ActionSyncType[T],
-            callback?: (err?: Error) => void
-          ) => void
+          remote: LX.Sync.ServerSyncActions
+          remoteQueueList: LX.Sync.ServerSyncListActions
+          remoteQueueDislike: LX.Sync.ServerSyncDislikeActions
         }
 
         interface UrlInfo {
@@ -38,22 +34,21 @@ declare global {
       namespace Server {
         interface Socket extends WS.WebSocket {
           isAlive?: boolean
-          isMobile: boolean
           isReady: boolean
-          keyInfo: LX.Sync.ServerKeyInfo
-
-          onRemoteEvent: <T extends keyof LX.Sync.ActionSyncType>(
-            eventName: T,
-            handler: (data: LX.Sync.ActionSyncType[T]) => void
-          ) => () => void
+          userInfo: { name: 'default' }
+          keyInfo: ServerKeyInfo
+          feature: LX.Sync.EnabledFeatures
+          moduleReadys: {
+            list: boolean
+            dislike: boolean
+          }
 
           onClose: (handler: (err: Error) => (void | Promise<void>)) => () => void
+          broadcast: (handler: (client: Socket) => void) => void
 
-          sendData: <T extends keyof LX.Sync.ActionSyncSendType>(
-            eventName: T,
-            data?: LX.Sync.ActionSyncSendType[T],
-            callback?: (err?: Error) => void
-          ) => void
+          remote: LX.Sync.ClientSyncActions
+          remoteQueueList: LX.Sync.ClientSyncListActions
+          remoteQueueDislike: LX.Sync.ClientSyncDislikeActions
         }
         type SocketServer = WS.Server<Socket>
       }

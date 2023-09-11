@@ -6,14 +6,16 @@ module.exports = {
     'del',
     'comlink',
     'vue',
-    'eslint-plugin-n',
     '@types/ws',
+    // 'eslint-config-standard-with-typescript',
+    'typescript', // https://github.com/microsoft/TypeScript/pull/54567
   ],
 
   // target: 'newest',
   // filter: [
   //   'electron-builder',
   //   'electron-updater',
+  //   'electron-log',
   // ],
 
   // target: 'patch',
@@ -23,7 +25,6 @@ module.exports = {
 
   // target: 'minor',
   // filter: [
-  //   'eslint-plugin-n',
   //   'electron',
   // ],
 }

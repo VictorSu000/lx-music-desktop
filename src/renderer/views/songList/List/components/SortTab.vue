@@ -29,7 +29,7 @@ const list = shallowReactive([])
 
 
 const handleToggle = (id) => {
-  router.replace({
+  void router.replace({
     path: route.path,
     query: {
       source: props.source,
@@ -54,7 +54,7 @@ watch(() => props.source, async(source) => {
 <style lang="less" module>
 @import '@renderer/assets/styles/layout.less';
 
-.tag-list {
+.tagList {
   font-size: 12px;
   position: relative;
 

@@ -7,17 +7,17 @@
       "@renderer/*": ["renderer/*"],
       // "@lyric/*": ["renderer-lyric/*"],
       "@static/*": ["static/*"],
-      "@/*": ["./*"],
+      "@root/*": ["./*"],
     },
     "typeRoots": [                                       /* Specify multiple folders that act like './node_modules/@types'. */
-      "renderer/types"
+      "./types"
     ],
   },
-  // "vueCompilerOptions": {
-  //   "plugins": [
-  //     "@volar/vue-language-plugin-pug"
-  //   ]
-  // }
+  "vueCompilerOptions": {
+    "plugins": [
+      "@vue/language-plugin-pug"
+    ]
+  }
   // "include": [
 	//   "./**/*.ts",
 	//   // "./**/*.js",

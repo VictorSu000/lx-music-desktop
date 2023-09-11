@@ -1,5 +1,5 @@
 <template>
-  <base-btn min :class="[$style.newPreset, {[$style.editing]: isEditing}]" :aria-label="$t('player__sound_effect_biquad_filter_save_btn')" @click="handleEditing($event)">
+  <base-btn min :disabled="disabled" :class="[$style.newPreset, {[$style.editing]: isEditing}]" :aria-label="$t('player__sound_effect_biquad_filter_save_btn')" @click="handleEditing($event)">
     <svg-icon name="plus" />
     <base-input ref="input" :class="$style.newPresetInput" :value="newPresetName" :placeholder="$t('player__sound_effect_biquad_filter_save_input')" @keyup.enter="handleSave($event)" @blur="handleSave($event)" />
   </base-btn>
@@ -10,6 +10,13 @@ import { ref, nextTick } from '@common/utils/vueTools'
 import { appSetting } from '@renderer/store/setting'
 import { saveUserConvolutionPreset } from '@renderer/store/soundEffect'
 
+defineProps({
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+})
+
 const isEditing = ref(false)
 const input = ref(false)
 const newPresetName = ref('')
@@ -18,7 +25,7 @@ const handleEditing = () => {
   if (isEditing.value) return
   // if (!this.newPresetName) this.newPresetName = this.listName
   isEditing.value = true
-  nextTick(() => {
+  void nextTick(() => {
     input.value.$el.focus()
   })
 }
@@ -29,7 +36,7 @@ const handleSave = (event) => {
   isEditing.value = false
   if (!name) return
   if (name.length > 20) name = name.substring(0, 20)
-  saveUserConvolutionPreset({
+  void saveUserConvolutionPreset({
     id: Date.now().toString(),
     name,
     source: appSetting['player.soundEffect.convolution.fileName'],

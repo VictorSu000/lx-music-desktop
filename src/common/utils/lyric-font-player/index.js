@@ -1,9 +1,9 @@
-const LinePlayer = require('./line-player')
-const FontPlayer = require('./font-player')
+import LinePlayer from './line-player'
+import FontPlayer from './font-player'
 
 const fontTimeExp = /<(\d+),(\d+)>/g
 
-module.exports = class Lyric {
+export default class Lyric {
   constructor({
     lyric = '',
     extendedLyrics = [],
@@ -68,7 +68,7 @@ module.exports = class Lyric {
   _handleLinePlayerOnPlay = (num, text, curTime) => {
     if (this.isLineMode) {
       if (num < this.playingLineNum + 1) {
-        for (let i = this.playingLineNum; i > num - 1; i--) {
+        for (let i = this.playingLineNum, minNum = Math.max(num, 0) - 1; i > minNum; i--) {
           const font = this._lineFonts[i]
           font.reset()
           font.lineContent.classList.remove(this.activeLineClassName)
@@ -86,7 +86,7 @@ module.exports = class Lyric {
       }
     } else {
       if (num < this.playingLineNum + 1) {
-        for (let i = this.playingLineNum; i > num - 1; i--) {
+        for (let i = this.playingLineNum, minNum = Math.max(num, 0) - 1; i > minNum; i--) {
           const font = this._lineFonts[i]
           font.lineContent.classList.remove(this.activeLineClassName)
           font.reset()
@@ -103,10 +103,12 @@ module.exports = class Lyric {
       }
     }
     this.playingLineNum = num
-    const font = this._lineFonts[num]
-    font.lineContent.classList.add(this.activeLineClassName)
-    font.play(curTime - this._lines[num].time)
-    this.onPlay(num, this._lines[num].text)
+    if (num > -1) {
+      const font = this._lineFonts[num]
+      font.lineContent.classList.add(this.activeLineClassName)
+      font.play(curTime - this._lines[num].time)
+    }
+    this.onPlay(num, this._lines[num]?.text ?? '')
   }
 
   _initLines = (lyricLines, offset, isUpdate) => {

@@ -2,14 +2,15 @@ import { markRaw, onBeforeUnmount } from '@common/utils/vueTools'
 import { onSyncAction, sendSyncAction } from '@renderer/utils/ipc'
 import { sync } from '@renderer/store'
 import { appSetting } from '@renderer/store/setting'
-import { SYNC_CODE } from '@common/constants'
+import { SYNC_CODE } from '@common/constants_sync'
 
 export default () => {
   const handleSyncList = (event: LX.Sync.SyncMainWindowActions) => {
     // console.log(event)
     switch (event.action) {
       case 'select_mode':
-        sync.deviceName = event.data
+        sync.deviceName = event.data.deviceName
+        sync.type = event.data.type
         sync.isShowSyncMode = true
         break
       case 'close_select_mode':
@@ -56,6 +57,8 @@ export default () => {
                 enable: appSetting['sync.enable'],
                 port: appSetting['sync.server.port'],
               },
+            }).catch(err => {
+              console.log(err)
             })
           }
           break
@@ -67,6 +70,8 @@ export default () => {
                 enable: appSetting['sync.enable'],
                 host: appSetting['sync.client.host'],
               },
+            }).catch(err => {
+              console.log(err)
             })
           }
           break

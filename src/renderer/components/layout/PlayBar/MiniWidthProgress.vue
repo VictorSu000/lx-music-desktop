@@ -49,8 +49,8 @@
 import { computed } from '@common/utils/vueTools'
 import { useRouter } from '@common/utils/vueRouter'
 import { clipboardWriteText } from '@common/utils/electron'
-import ControlBtns from './ControlBtns'
-import PlayProgress from './PlayProgress'
+import ControlBtns from './ControlBtns.vue'
+import PlayProgress from './PlayProgress.vue'
 import usePlayProgress from '@renderer/utils/compositions/usePlayProgress'
 // import { lyric } from '@renderer/core/share/lyric'
 import {
@@ -103,7 +103,7 @@ export default {
       const listId = playMusicInfo.listId
       if (!listId || listId == LIST_IDS.DOWNLOAD || !playMusicInfo.musicInfo) return
       if (playInfo.playIndex == -1) return
-      router.push({
+      void router.push({
         path: '/list',
         query: {
           id: listId,
@@ -314,7 +314,7 @@ export default {
   gap: 18px;
 }
 
-.play-btn {
+.playBtn {
   flex: none;
   height: 52%;
   // margin-top: -2px;

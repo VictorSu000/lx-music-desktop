@@ -43,7 +43,7 @@ import { isFullscreen } from '@renderer/store'
 import { appSetting } from '@renderer/store/setting'
 import { getFontSizeWithScreen } from '@renderer/utils'
 import { LIST_IDS } from '@common/constants'
-import { useI18n } from '@/lang'
+import { useI18n } from '@root/lang'
 
 export default {
   props: {
@@ -84,7 +84,7 @@ export default {
     watch(() => props.visible, (visible) => {
       if (visible) {
         if (duplicateList.value.length) duplicateList.value = []
-        handleFilterList()
+        void handleFilterList()
       }
     })
 
@@ -227,7 +227,7 @@ export default {
   }
 }
 
-.no-item {
+.noItem {
   position: relative;
   height: 200px;
   display: flex;

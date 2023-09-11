@@ -1,4 +1,4 @@
-const { getNow, TimeoutTools } = require('./utils')
+import { getNow, TimeoutTools } from './utils'
 
 const timeFieldExp = /^(?:\[[\d:.]+\])+/g
 const timeExp = /\d{1,3}(:\d{1,3}){0,2}(?:\.\d{1,3})/g
@@ -29,7 +29,8 @@ const parseExtendedLyric = (lrcLinesMap, extendedLyric) => {
     if (result) {
       const timeField = result[0]
       const text = line.replace(timeFieldExp, '').trim()
-      if (text) {
+      // https://github.com/lyswhut/lx-music-desktop/issues/1499
+      if (text && text != '//') {
         const times = timeField.match(timeExp)
         if (times == null) continue
         for (let time of times) {
@@ -42,7 +43,7 @@ const parseExtendedLyric = (lrcLinesMap, extendedLyric) => {
   }
 }
 
-module.exports = class LinePlayer {
+export default class LinePlayer {
   constructor({ offset = 0, rate = 1, onPlay = function() { }, onSetLyric = function() { } } = {}) {
     this.tags = {}
     this.lines = null
@@ -147,7 +148,7 @@ module.exports = class LinePlayer {
     const currentTime = this._currentTime()
     const driftTime = currentTime - curLine.time
 
-    if (driftTime >= 0 || this.curLineNum === 0) {
+    if (driftTime >= 0) {
       let nextLine = this.lines[this.curLineNum + 1]
       const delay = (nextLine.time - curLine.time - driftTime) / this._rate
 
@@ -166,6 +167,17 @@ module.exports = class LinePlayer {
         this._refresh()
         return
       }
+    } else if (this.curLineNum == 0) {
+      let firstLine = this.lines[0]
+      const delay = (firstLine.time - currentTime) / this._rate
+      if (this.isPlay) {
+        timeoutTools.start(() => {
+          if (!this.isPlay) return
+          this._refresh()
+        }, delay)
+      }
+      this.onPlay(-1, '', currentTime)
+      return
     }
 
     this.curLineNum = this._findCurLineNum(currentTime, this.curLineNum) - 1

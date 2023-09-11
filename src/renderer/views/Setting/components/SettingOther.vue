@@ -15,7 +15,7 @@ dd
       | {{ $t('setting__other_resource_cache_label') }}
       span.auto-hidden {{ cacheSize }}
     .p
-      base-btn.btn(min :disabled="isDisabledResourceCacheClear" @click="clearResourceCache") {{$t('setting__other_resource_cache_clear_btn')}}
+      base-btn.btn(min :disabled="isDisabledResourceCacheClear" @click="clearResourceCache") {{ $t('setting__other_resource_cache_clear_btn') }}
 
 dd
   h3#other_other_source {{ $t('setting__other_other_cache') }}
@@ -32,7 +32,17 @@ dd
     .p
       base-btn.btn(min :disabled="isDisabledOtherSourceCacheClear" @click="handleClearOtherSourceCache") {{ $t('setting__other_other_source_clear_btn') }}
       base-btn.btn(min :disabled="isDisabledMusicUrlCacheClear" @click="handleClearMusicUrlCache") {{ $t('setting__other_music_url_clear_btn') }}
-      base-btn.btn(min :disabled="isDisabledLyricRawCacheClear" @click="handleClearLyricRawCache") {{$t('setting__other_lyric_raw_clear_btn')}}
+      base-btn.btn(min :disabled="isDisabledLyricRawCacheClear" @click="handleClearLyricRawCache") {{ $t('setting__other_lyric_raw_clear_btn') }}
+
+dd
+  h3#other_lyric_edited {{ $t('setting__other_dislike_list') }}
+  div
+    .p
+      | {{ $t('setting__other_dislike_list_label') }}
+      span.auto-hidden {{ dislikeRuleCount }}
+    .p
+      base-btn.btn(min @click="isShowDislikeList = true") {{ $t('setting__other_dislike_list_show_btn') }}
+  DislikeListModal(v-model="isShowDislikeList")
 
 dd
   h3#other_lyric_edited {{ $t('setting__other_lyric_edited_cache') }}
@@ -41,13 +51,13 @@ dd
       | {{ $t('setting__other_lyric_edited_label') }}
       span.auto-hidden {{ lyricEditedCount }}
     .p
-      base-btn.btn(min :disabled="isDisabledLyricEditedCacheClear" @click="handleClearLyricEditedCache") {{$t('setting__other_lyric_edited_clear_btn')}}
+      base-btn.btn(min :disabled="isDisabledLyricEditedCacheClear" @click="handleClearLyricEditedCache") {{ $t('setting__other_lyric_edited_clear_btn') }}
 
 dd
   h3#other_lyric_edited {{ $t('setting__other_listdata') }}
   div
     .p
-      base-btn.btn(min @click="handleClearListData") {{$t('setting__other_listdata_clear_btn')}}
+      base-btn.btn(min @click="handleClearListData") {{ $t('setting__other_listdata_clear_btn') }}
 
 </template>
 
@@ -65,9 +75,14 @@ import { dialog } from '@renderer/plugins/Dialog'
 import { useI18n } from '@renderer/plugins/i18n'
 import { appSetting, updateSetting } from '@renderer/store/setting'
 import { overwriteListFull } from '@renderer/store/list/listManage'
+import { dislikeRuleCount } from '@renderer/store/dislikeList'
+import DislikeListModal from './DislikeListModal.vue'
 
 export default {
   name: 'SettingOther',
+  components: {
+    DislikeListModal,
+  },
   setup() {
     const t = useI18n()
 
@@ -83,7 +98,7 @@ export default {
     const isDisabledResourceCacheClear = ref(false)
     // const isDisabledListCacheClear = ref(false)
     const refreshCacheSize = () => {
-      getCacheSize().then(size => {
+      void getCacheSize().then(size => {
         cacheSize.value = sizeFormate(size)
       })
     }
@@ -94,7 +109,7 @@ export default {
         confirmButtonText: t('setting__other_resource_cache_confirm'),
       })) return
       isDisabledResourceCacheClear.value = true
-      clearCache().then(() => {
+      void clearCache().then(() => {
         refreshCacheSize()
         isDisabledResourceCacheClear.value = false
       })
@@ -105,13 +120,13 @@ export default {
     const otherSourceCount = ref(0)
     const isDisabledOtherSourceCacheClear = ref(false)
     const refreshOtherSourceCount = () => {
-      getOtherSourceCount().then(count => {
+      void getOtherSourceCount().then(count => {
         otherSourceCount.value = count
       })
     }
     const handleClearOtherSourceCache = async() => {
       isDisabledOtherSourceCacheClear.value = true
-      clearOtherSource().then(() => {
+      void clearOtherSource().then(() => {
         refreshOtherSourceCount()
         isDisabledOtherSourceCacheClear.value = false
       })
@@ -122,30 +137,31 @@ export default {
     const musicUrlCount = ref(0)
     const isDisabledMusicUrlCacheClear = ref(false)
     const refreshMusicUrlCount = () => {
-      getMusicUrlCount().then(count => {
+      void getMusicUrlCount().then(count => {
         musicUrlCount.value = count
       })
     }
     const handleClearMusicUrlCache = async() => {
       isDisabledMusicUrlCacheClear.value = true
-      clearMusicUrl().then(() => {
+      void clearMusicUrl().then(() => {
         refreshMusicUrlCount()
         isDisabledMusicUrlCacheClear.value = false
       })
     }
     refreshMusicUrlCount()
 
+    const isShowDislikeList = ref(false)
 
     const lyricRawCount = ref(0)
     const isDisabledLyricRawCacheClear = ref(false)
     const refreshLyricRawCount = () => {
-      getLyricRawCount().then(count => {
+      void getLyricRawCount().then(count => {
         lyricRawCount.value = count
       })
     }
     const handleClearLyricRawCache = async() => {
       isDisabledLyricRawCacheClear.value = true
-      clearLyricRaw().then(() => {
+      void clearLyricRaw().then(() => {
         refreshLyricRawCount()
         isDisabledLyricRawCacheClear.value = false
       })
@@ -156,7 +172,7 @@ export default {
     const lyricEditedCount = ref(0)
     const isDisabledLyricEditedCacheClear = ref(false)
     const refreshLyricEditedCount = () => {
-      getLyricEditedCount().then(count => {
+      void getLyricEditedCount().then(count => {
         lyricEditedCount.value = count
       })
     }
@@ -167,7 +183,7 @@ export default {
         confirmButtonText: t('setting__other_resource_cache_confirm'),
       })) return
       isDisabledLyricEditedCacheClear.value = true
-      clearLyricEdited().then(() => {
+      void clearLyricEdited().then(() => {
         refreshLyricEditedCount()
         isDisabledLyricEditedCacheClear.value = false
       })
@@ -180,7 +196,7 @@ export default {
         cancelButtonText: t('cancel_button_text'),
         confirmButtonText: t('setting__other_resource_cache_confirm'),
       })) return
-      overwriteListFull({
+      void overwriteListFull({
         defaultList: [],
         loveList: [],
         userList: [],
@@ -203,6 +219,9 @@ export default {
       musicUrlCount,
       isDisabledMusicUrlCacheClear,
       handleClearMusicUrlCache,
+
+      dislikeRuleCount,
+      isShowDislikeList,
 
       lyricRawCount,
       isDisabledLyricRawCacheClear,

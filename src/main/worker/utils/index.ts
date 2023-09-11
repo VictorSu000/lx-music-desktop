@@ -1,4 +1,4 @@
-import { Worker } from 'worker_threads'
+import { Worker } from 'node:worker_threads'
 import * as Comlink from 'comlink'
 import nodeEndpoint from 'comlink/dist/esm/node-adapter'
 

@@ -1,9 +1,20 @@
 import { mainHandle } from '@common/mainIpc'
 import { WIN_MAIN_RENDERER_EVENT_NAME } from '@common/ipcNames'
-import { startServer, stopServer, getServerStatus, generateCode, connectServer, disconnectServer, getClientStatus } from '@main/modules/sync'
+import {
+  startServer,
+  stopServer,
+  getServerStatus,
+  generateCode,
+  connectServer,
+  disconnectServer,
+  getClientStatus,
+  getServerDevices,
+  removeServerDevice,
+} from '@main/modules/sync'
 import { sendEvent } from '../main'
 
-let selectModeListenr: ((mode: LX.Sync.Mode) => void) | null = null
+
+let selectModeListenr: ((mode: LX.Sync.ModeTypes[keyof LX.Sync.ModeTypes] | null) => void) | null = null
 
 export default () => {
   mainHandle<LX.Sync.SyncServiceActions, any>(WIN_MAIN_RENDERER_EVENT_NAME.sync_action, async({ params: data }) => {
@@ -18,11 +29,20 @@ export default () => {
       case 'get_client_status': return getClientStatus()
       case 'generate_code': return generateCode()
       case 'select_mode':
-        if (selectModeListenr) selectModeListenr(data.data)
+        if (selectModeListenr) {
+          selectModeListenr(data.data.mode)
+          selectModeListenr = null
+        }
         break
       default:
         break
     }
+  })
+  mainHandle<never, LX.Sync.ServerDevices>(WIN_MAIN_RENDERER_EVENT_NAME.sync_get_server_devices, async() => {
+    return getServerDevices()
+  })
+  mainHandle<string>(WIN_MAIN_RENDERER_EVENT_NAME.sync_remove_server_device, async({ params: clientId }) => {
+    await removeServerDevice(clientId)
   })
 }
 
@@ -43,11 +63,12 @@ export const sendServerStatus = (status: LX.Sync.ServerStatus) => {
     data: status,
   })
 }
-export const sendSelectMode = (deviceName: string, listener: (mode: LX.Sync.Mode) => void) => {
-  selectModeListenr = listener
-  sendSyncAction({ action: 'select_mode', data: deviceName })
+export const sendSelectMode = <T extends keyof LX.Sync.ModeTypes>(deviceName: string, type: T, listener: (mode: LX.Sync.ModeTypes[T] | null) => void) => {
+  selectModeListenr = listener as typeof selectModeListenr
+  sendSyncAction({ action: 'select_mode', data: { deviceName, type } })
 }
 export const removeSelectModeListener = () => {
+  if (selectModeListenr) selectModeListenr(null)
   selectModeListenr = null
 }
 export const sendCloseSelectMode = () => {

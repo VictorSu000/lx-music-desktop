@@ -1,8 +1,8 @@
 
-const getNow = exports.getNow = typeof performance == 'object' && window.performance.now ? window.performance.now.bind(window.performance) : Date.now.bind(Date)
+export const getNow = typeof performance == 'object' && window.performance.now ? window.performance.now.bind(window.performance) : Date.now.bind(Date)
 
-exports.TimeoutTools = class TimeoutTools {
-  constructor(thresholdTime = 200) {
+export class TimeoutTools {
+  constructor(thresholdTime = 80) {
     this.invokeTime = 0
     this.animationFrameId = null
     this.timeoutId = null
@@ -17,6 +17,7 @@ exports.TimeoutTools = class TimeoutTools {
       // console.log('diff', diff)
       if (diff > 0) {
         if (diff < this.thresholdTime) return this.run()
+        // console.log('run timeout', diff, diff - this.thresholdTime)
         return this.timeoutId = window.setTimeout(() => {
           this.timeoutId = null
           this.run()

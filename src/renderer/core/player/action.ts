@@ -222,10 +222,11 @@ const handlePlay = () => {
  * @param index 播放的歌曲位置
  */
 export const playList = (listId: string, index: number) => {
+  const prevListId = playInfo.playerListId
   setPlayListId(listId)
   pause()
   setPlayMusicInfo(listId, getList(listId)[index])
-  clearPlayedList()
+  if (appSetting['player.isAutoCleanPlayedList'] || prevListId != listId) clearPlayedList()
   clearTempPlayeList()
   handlePlay()
 }
@@ -299,6 +300,7 @@ export const playNext = async(isAutoToggle = false): Promise<void> => {
     list: currentList,
     playedList,
     playerMusicInfo: currentList[playInfo.playerPlayIndex],
+    isNext: true,
   })
 
   if (!filteredList.length) {
@@ -398,6 +400,7 @@ export const playPrev = async(isAutoToggle = false): Promise<void> => {
     list: currentList,
     playedList,
     playerMusicInfo: currentList[playInfo.playerPlayIndex],
+    isNext: false,
   })
   if (!filteredList.length) {
     handleToggleStop()

@@ -7,7 +7,7 @@
       // "@renderer/*": ["renderer/*"],
       "@lyric/*": ["renderer-lyric/*"],
       "@static/*": ["static/*"],
-      "@/*": ["./*"],
+      "@root/*": ["./*"],
     },
     "typeRoots": [                                       /* Specify multiple folders that act like './node_modules/@types'. */
       "./types"

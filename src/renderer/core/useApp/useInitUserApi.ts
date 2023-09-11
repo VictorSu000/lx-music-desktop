@@ -16,7 +16,7 @@ export default () => {
     userApi.status = status
     userApi.message = message
 
-    if (status && apiInfo && apiInfo.sources) {
+    if (status && apiInfo?.sources) {
       if (apiInfo.id === appSetting['common.apiSource']) {
         let apis: any = {}
         let qualitys: LX.QualityList = {}
@@ -49,7 +49,7 @@ export default () => {
                       return { type, url: res.data.url }
                     }).catch(async err => {
                       console.log(err.message)
-                      return await Promise.reject(err)
+                      return Promise.reject(err)
                     }),
                   }
                 }

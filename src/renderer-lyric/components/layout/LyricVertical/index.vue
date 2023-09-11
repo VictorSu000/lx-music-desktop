@@ -33,13 +33,16 @@ export default {
       return name
     })
     const lrcStyles = computed(() => ({
-      fontFamily: setting['desktopLyric.style.font'],
+      fontFamily: /\s/.test(setting['desktopLyric.style.font']) ? `"${setting['desktopLyric.style.font']}"` : setting['desktopLyric.style.font'],
       fontSize: Math.trunc(setting['desktopLyric.style.fontSize']) + 'px',
       opacity: setting['desktopLyric.style.opacity'] / 100,
       textAlign: setting['desktopLyric.style.align'],
       '--line-gap': Math.ceil(setting['desktopLyric.style.lineGap'] * 1.06) + 'px',
       '--line-extended-gap': Math.ceil(setting['desktopLyric.style.lineGap'] * 1.06 / 8).toFixed(2) + 'px',
     }))
+    const isComputeWidth = computed(() => {
+      return setting['desktopLyric.style.isZoomActiveLrc'] && !setting['desktopLyric.isDelayScroll']
+    })
     const {
       dom_lyric,
       dom_lyric_text,
@@ -47,7 +50,7 @@ export default {
       handleLyricMouseDown,
       handleLyricTouchStart,
       handleWheel,
-    } = useLyric()
+    } = useLyric(isComputeWidth)
 
     return {
       classNames,
@@ -196,7 +199,7 @@ export default {
 //   // -webkit-text-fill-color: #fff;
 //   // -webkit-text-stroke: thin #124628;
 // }
-.lyric-space {
+.lyricSpace {
   width: 80%;
   height: 100%;
 }
@@ -223,7 +226,7 @@ export default {
     }
   }
 }
-.lrc-active-zoom {
+.lrcActiveZoom {
   :global {
     .line-content {
       &.active {
@@ -245,21 +248,21 @@ export default {
     }
   }
 }
-.font-weight-font {
+.fontWeightFont {
   :global {
     .font-mode > .line {
       font-weight: bold;
     }
   }
 }
-.font-weight-line {
+.fontWeightLine {
   :global {
     .line-mode > .line {
       font-weight: bold;
     }
   }
 }
-.font-weight-extended {
+.fontWeightExtended {
   :global {
     .extended {
       font-weight: bold;

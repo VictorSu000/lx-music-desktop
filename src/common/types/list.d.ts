@@ -139,6 +139,5 @@ declare namespace LX {
       userList: UserListInfoFull[]
       tempList: LX.Music.MusicInfo[]
     }
-
   }
 }

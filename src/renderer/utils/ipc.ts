@@ -37,9 +37,18 @@ export const clearOtherSource = async() => {
   await rendererInvoke(WIN_MAIN_RENDERER_EVENT_NAME.clear_other_source)
 }
 export const getOtherSourceCount = async() => {
-  return await rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_other_source_count)
+  return rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_other_source_count)
 }
 
+// export const updateDislikeInfo = async(dislikeInfo: LX.Dislike.ListItem[]) => {
+//   await rendererInvoke<LX.Dislike.ListItem[]>(WIN_MAIN_RENDERER_EVENT_NAME.update_dislike_music_infos, dislikeInfo)
+// }
+// export const removeDislikeInfo = async(ids: string[]) => {
+//   await rendererInvoke<string[]>(WIN_MAIN_RENDERER_EVENT_NAME.remove_dislike_music_infos, ids)
+// }
+// export const clearDislikeInfo = async() => {
+//   await rendererInvoke(WIN_MAIN_RENDERER_EVENT_NAME.clear_dislike_music_infos)
+// }
 
 export const getHotKeyConfig = async() => {
   return rendererInvoke<LX.HotKeyConfigAll>(WIN_MAIN_RENDERER_EVENT_NAME.get_hot_key)
@@ -254,7 +263,7 @@ export const saveLeaderboardSetting = (source: typeof DEFAULT_SETTING['leaderboa
   })
 }
 export const getLeaderboardSetting = async() => {
-  return await rendererInvoke<string, typeof DEFAULT_SETTING['leaderboard']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.leaderboardSetting) ?? { ...DEFAULT_SETTING.leaderboard }
+  return (await rendererInvoke<string, typeof DEFAULT_SETTING['leaderboard']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.leaderboardSetting)) ?? { ...DEFAULT_SETTING.leaderboard }
 }
 export const saveSongListSetting = (setting: typeof DEFAULT_SETTING['songList']) => {
   rendererSend(WIN_MAIN_RENDERER_EVENT_NAME.save_data, {
@@ -263,7 +272,7 @@ export const saveSongListSetting = (setting: typeof DEFAULT_SETTING['songList'])
   })
 }
 export const getSongListSetting = async() => {
-  return await rendererInvoke<string, typeof DEFAULT_SETTING['songList']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.songListSetting) ?? { ...DEFAULT_SETTING.songList }
+  return (await rendererInvoke<string, typeof DEFAULT_SETTING['songList']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.songListSetting)) ?? { ...DEFAULT_SETTING.songList }
 }
 export const saveSearchSetting = (setting: typeof DEFAULT_SETTING['search']) => {
   rendererSend(WIN_MAIN_RENDERER_EVENT_NAME.save_data, {
@@ -272,7 +281,7 @@ export const saveSearchSetting = (setting: typeof DEFAULT_SETTING['search']) => 
   })
 }
 export const getSearchSetting = async() => {
-  return await rendererInvoke<string, typeof DEFAULT_SETTING['search']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.searchSetting) ?? { ...DEFAULT_SETTING.search }
+  return (await rendererInvoke<string, typeof DEFAULT_SETTING['search']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.searchSetting)) ?? { ...DEFAULT_SETTING.search }
 }
 export const saveViewPrevState = (state: typeof DEFAULT_SETTING['viewPrevState']) => {
   rendererSend(WIN_MAIN_RENDERER_EVENT_NAME.save_data, {
@@ -281,7 +290,7 @@ export const saveViewPrevState = (state: typeof DEFAULT_SETTING['viewPrevState']
   })
 }
 export const getViewPrevState = async() => {
-  return await rendererInvoke<string, typeof DEFAULT_SETTING['viewPrevState']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.viewPrevState) ?? { ...DEFAULT_SETTING.viewPrevState }
+  return (await rendererInvoke<string, typeof DEFAULT_SETTING['viewPrevState']>(WIN_MAIN_RENDERER_EVENT_NAME.get_data, DATA_KEYS.viewPrevState)) ?? { ...DEFAULT_SETTING.viewPrevState }
 }
 
 
@@ -292,7 +301,7 @@ export const getSystemFonts = async() => {
 }
 
 export const getUserSoundEffectEQPresetList = async() => {
-  return await rendererInvoke<LX.SoundEffect.EQPreset[]>(WIN_MAIN_RENDERER_EVENT_NAME.get_sound_effect_eq_preset)
+  return rendererInvoke<LX.SoundEffect.EQPreset[]>(WIN_MAIN_RENDERER_EVENT_NAME.get_sound_effect_eq_preset)
 }
 
 export const saveUserSoundEffectEQPresetList = (list: LX.SoundEffect.EQPreset[]) => {
@@ -300,7 +309,7 @@ export const saveUserSoundEffectEQPresetList = (list: LX.SoundEffect.EQPreset[])
 }
 
 export const getUserSoundEffectConvolutionPresetList = async() => {
-  return await rendererInvoke<LX.SoundEffect.ConvolutionPreset[]>(WIN_MAIN_RENDERER_EVENT_NAME.get_sound_effect_convolution_preset)
+  return rendererInvoke<LX.SoundEffect.ConvolutionPreset[]>(WIN_MAIN_RENDERER_EVENT_NAME.get_sound_effect_convolution_preset)
 }
 
 export const saveUserSoundEffectConvolutionPresetList = (list: LX.SoundEffect.ConvolutionPreset[]) => {
@@ -308,7 +317,7 @@ export const saveUserSoundEffectConvolutionPresetList = (list: LX.SoundEffect.Co
 }
 
 // export const getUserSoundEffectPitchShifterPresetList = async() => {
-//   return await rendererInvoke<LX.SoundEffect.PitchShifterPreset[]>(WIN_MAIN_RENDERER_EVENT_NAME.get_sound_effect_pitch_shifter_preset)
+//   return rendererInvoke<LX.SoundEffect.PitchShifterPreset[]>(WIN_MAIN_RENDERER_EVENT_NAME.get_sound_effect_pitch_shifter_preset)
 // }
 
 // export const saveUserSoundEffectPitchShifterPresetList = (list: LX.SoundEffect.PitchShifterPreset[]) => {
@@ -330,6 +339,11 @@ export const allHotKeys = markRaw({
     {
       name: hotKeys.HOTKEY_PLAYER.next.name,
       action: hotKeys.HOTKEY_PLAYER.next.action,
+      type: APP_EVENT_NAMES.winMainName,
+    },
+    {
+      name: hotKeys.HOTKEY_PLAYER.music_dislike.name,
+      action: hotKeys.HOTKEY_PLAYER.music_dislike.action,
       type: APP_EVENT_NAMES.winMainName,
     },
     {
@@ -392,6 +406,21 @@ export const allHotKeys = markRaw({
     {
       name: hotKeys.HOTKEY_PLAYER.volume_mute.name,
       action: hotKeys.HOTKEY_PLAYER.volume_mute.action,
+      type: APP_EVENT_NAMES.winMainName,
+    },
+    {
+      name: hotKeys.HOTKEY_PLAYER.music_love.name,
+      action: hotKeys.HOTKEY_PLAYER.music_love.action,
+      type: APP_EVENT_NAMES.winMainName,
+    },
+    {
+      name: hotKeys.HOTKEY_PLAYER.music_unlove.name,
+      action: hotKeys.HOTKEY_PLAYER.music_unlove.action,
+      type: APP_EVENT_NAMES.winMainName,
+    },
+    {
+      name: hotKeys.HOTKEY_PLAYER.music_dislike.name,
+      action: hotKeys.HOTKEY_PLAYER.music_dislike.action,
       type: APP_EVENT_NAMES.winMainName,
     },
     {
@@ -507,7 +536,7 @@ export const clearLyricRaw = async() => {
 }
 
 export const getLyricRawCount = async() => {
-  return await rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_lyric_raw_count)
+  return rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_lyric_raw_count)
 }
 
 
@@ -559,7 +588,7 @@ export const clearLyricEdited = async() => {
 }
 
 export const getLyricEditedCount = async() => {
-  return await rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_lyric_edited_count)
+  return rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_lyric_edited_count)
 }
 
 
@@ -603,7 +632,7 @@ export const clearMusicUrl = async() => {
 }
 
 export const getMusicUrlCount = async() => {
-  return await rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_music_url_count)
+  return rendererInvoke<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_music_url_count)
 }
 
 /**
@@ -726,6 +755,23 @@ export const onSyncAction = (listener: LX.IpcRendererEventListenerParams<LX.Sync
 export const sendSyncAction = async(action: LX.Sync.SyncServiceActions) => {
   return rendererInvoke<LX.Sync.SyncServiceActions>(WIN_MAIN_RENDERER_EVENT_NAME.sync_action, action)
 }
+
+/**
+ * 获取同步服务端连接设备历史列表
+ * @returns
+ */
+export const getSyncServerDevices = () => {
+  return rendererInvoke<LX.Sync.ServerDevices>(WIN_MAIN_RENDERER_EVENT_NAME.sync_get_server_devices)
+}
+
+/**
+ * 移除同步服务端连接设备
+ * @returns
+ */
+export const removeSyncServerDevice = (clientId: string) => {
+  return rendererInvoke<string>(WIN_MAIN_RENDERER_EVENT_NAME.sync_remove_server_device, clientId)
+}
+
 
 // export const refreshSyncCode = async(): Promise<string> => {
 //   return rendererInvoke(WIN_MAIN_RENDERER_EVENT_NAME.sync_generate_code)

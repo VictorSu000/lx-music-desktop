@@ -21,7 +21,7 @@ material-modal(:show="modelValue" bg-close teleport="#view" @close="handleClose"
       p {{ $t('user_api__note') }}
     div(:class="$style.footer")
       base-btn(:class="$style.footerBtn" @click="handleImport") {{ $t('user_api__btn_import') }}
-      //- base-btn(:class="$style.footerBtn" @click="handleExport") {{$t('user_api__btn_export')}}
+      //- base-btn(:class="$style.footerBtn" @click="handleExport") {{ $t('user_api__btn_export') }}
 </template>
 
 <script>
@@ -39,7 +39,7 @@ export default {
       default: false,
     },
   },
-  emits: ['update:model-value'],
+  emits: ['update:modelValue'],
   setup() {
     return {
       userApi,
@@ -60,16 +60,16 @@ export default {
         })
         return
       }
-      showSelectDialog({
+      void showSelectDialog({
         title: this.$t('user_api__import_file'),
         properties: ['openFile'],
         filters: [
           { name: 'LX API File', extensions: ['js'] },
           { name: 'All Files', extensions: ['*'] },
         ],
-      }).then(result => {
+      }).then(async result => {
         if (result.canceled) return
-        return readFile(result.filePaths[0]).then(data => {
+        return readFile(result.filePaths[0]).then(async data => {
           return importUserApi(data.toString()).then(({ apiList }) => {
             userApi.list = apiList
           })
@@ -89,13 +89,13 @@ export default {
       userApi.list = await removeUserApi([api.id])
     },
     handleClose() {
-      this.$emit('update:model-value', false)
+      this.$emit('update:modelValue', false)
     },
     handleOpenUrl(url) {
-      openUrl(url)
+      void openUrl(url)
     },
     handleChangeAllowUpdateAlert(api, enable) {
-      setAllowShowUserApiUpdateAlert(api.id, enable)
+      void setAllowShowUserApiUpdateAlert(api.id, enable)
     },
   },
 }

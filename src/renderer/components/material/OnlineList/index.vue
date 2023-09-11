@@ -180,6 +180,7 @@ export default {
     const {
       handleSearch,
       handleOpenMusicDetail,
+      handleDislikeMusic,
     } = useMusicActions({ props })
 
     const {
@@ -199,6 +200,7 @@ export default {
       handleSearch,
       handleShowMusicAddModal,
       handleOpenMusicDetail,
+      handleDislikeMusic,
     })
 
     const handleListItemClick = (event, index) => {
@@ -234,7 +236,7 @@ export default {
           handleShowDownloadModal(index, true)
           break
         case 'play':
-          handlePlayMusic(index, true)
+          void handlePlayMusic(index, true)
           break
         case 'search':
           handleSearch(index)
@@ -285,7 +287,7 @@ export default {
 
 <style lang="less" module>
 @import '@renderer/assets/styles/layout.less';
-.song-list {
+.songList {
   overflow: hidden;
   height: 100%;
   display: flex;

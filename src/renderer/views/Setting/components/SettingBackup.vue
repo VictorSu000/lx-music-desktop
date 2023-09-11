@@ -13,12 +13,12 @@ dd
   h3#backup_all {{ $t('setting__backup_all') }}
   div
     base-btn.btn.gap-left(min @click="handleImportAllData") {{ $t('setting__backup_all_import') }}
-    base-btn.btn.gap-left(min @click="handleExportAllData") {{$t('setting__backup_all_export')}}
+    base-btn.btn.gap-left(min @click="handleExportAllData") {{ $t('setting__backup_all_export') }}
 dd
   h3#backup_other {{ $t('setting__backup_other') }}
   div
     base-btn.btn.gap-left(min @click="handleExportPlayListToText") {{ $t('setting__backup_other_export_list_text') }}
-    base-btn.btn.gap-left(min @click="handleExportPlayListToCsv") {{$t('setting__backup_other_export_list_csv')}}
+    base-btn.btn.gap-left(min @click="handleExportPlayListToCsv") {{ $t('setting__backup_other_export_list_csv') }}
 </template>
 
 <script>
@@ -151,11 +151,11 @@ export default {
           await importNewListData(allData.playList)
           importNewSettingData(allData.setting)
           break
-        default: return showImportTip(allData.type)
+        default: { showImportTip(allData.type) }
       }
     }
     const handleImportAllData = () => {
-      showSelectDialog({
+      void showSelectDialog({
         title: t('setting__backup_all_import_desc'),
         properties: ['openFile'],
         filters: [
@@ -164,13 +164,13 @@ export default {
         ],
       }).then(result => {
         if (result.canceled) return
-        dialog.confirm({
+        void dialog.confirm({
           message: t('setting__backup_part_import_list_confirm'),
           cancelButtonText: t('cancel_button_text'),
           confirmButtonText: t('confirm_button_text'),
         }).then(confirm => {
           if (!confirm) return
-          importAllData(result.filePaths[0])
+          void importAllData(result.filePaths[0])
         })
       })
     }
@@ -181,15 +181,15 @@ export default {
         setting: { ...appSetting },
         playList: await getAllLists(),
       }
-      window.lx.worker.main.saveLxConfigFile(path, allData)
+      void window.lx.worker.main.saveLxConfigFile(path, allData)
     }
     const handleExportAllData = () => {
-      openSaveDir({
+      void openSaveDir({
         title: t('setting__backup_all_export_desc'),
         defaultPath: 'lx_datas_v2.lxmc',
       }).then(result => {
         if (result.canceled) return
-        exportAllData(result.filePath)
+        void exportAllData(result.filePath)
       })
     }
 
@@ -198,10 +198,10 @@ export default {
         type: 'setting_v2',
         data: { ...appSetting },
       }
-      window.lx.worker.main.saveLxConfigFile(path, data)
+      void window.lx.worker.main.saveLxConfigFile(path, data)
     }
     const handleExportSetting = () => {
-      openSaveDir({
+      void openSaveDir({
         title: t('setting__backup_part_export_setting_desc'),
         defaultPath: 'lx_setting_v2.lxmc',
       }).then(result => {
@@ -225,11 +225,11 @@ export default {
         case 'setting_v2':
           importNewSettingData(settingData.data)
           break
-        default: return showImportTip(settingData.type)
+        default: { showImportTip(settingData.type) }
       }
     }
     const handleImportSetting = () => {
-      showSelectDialog({
+      void showSelectDialog({
         title: t('setting__backup_part_import_setting_desc'),
         properties: ['openFile'],
         filters: [
@@ -238,7 +238,7 @@ export default {
         ],
       }).then(result => {
         if (result.canceled) return
-        importSetting(result.filePaths[0])
+        void importSetting(result.filePaths[0])
       })
     }
 
@@ -247,15 +247,15 @@ export default {
         type: 'playList_v2',
         data: await getAllLists(),
       }
-      window.lx.worker.main.saveLxConfigFile(path, data)
+      void window.lx.worker.main.saveLxConfigFile(path, data)
     }
     const handleExportPlayList = () => {
-      openSaveDir({
+      void openSaveDir({
         title: t('setting__backup_part_export_list_desc'),
         defaultPath: 'lx_list.lxmc',
       }).then(result => {
         if (result.canceled) return
-        exportPlayList(result.filePath)
+        void exportPlayList(result.filePath)
       })
     }
 
@@ -307,9 +307,7 @@ export default {
         case 'playList_v2':
           await importNewListData(listData.data)
           break
-        default:
-          console.error('listData.type', listData.type)
-          return showImportTip(listData.type)
+        default: { showImportTip(listData.type) }
       }
       return null
     }
@@ -326,7 +324,7 @@ export default {
       await doImportPlayList(listData)
     }
     const handleImportPlayList = () => {
-      showSelectDialog({
+      void showSelectDialog({
         title: t('setting__backup_part_import_list_desc'),
         properties: ['openFile'],
         filters: [
@@ -335,13 +333,13 @@ export default {
         ],
       }).then(result => {
         if (result.canceled) return
-        dialog.confirm({
+        void dialog.confirm({
           message: t('setting__backup_part_import_list_confirm'),
           cancelButtonText: t('cancel_button_text'),
           confirmButtonText: t('confirm_button_text'),
         }).then(confirm => {
           if (!confirm) return
-          importPlayList(result.filePaths[0])
+          void importPlayList(result.filePaths[0])
         })
       })
     }
@@ -357,23 +355,23 @@ export default {
         confirmButtonText: t('confirm_button_text'),
       })
       if (confirm) {
-        openSaveDir({
+        void openSaveDir({
           title: t('setting__backup_other_export_dir'),
           defaultPath: 'lx_list_all.txt',
         }).then(result => {
           if (result.canceled) return
           let path = result.filePath
           if (!path.endsWith('.txt')) path += '.txt'
-          exportPlayListToText(path, true)
+          void exportPlayListToText(path, true)
         })
       } else {
-        showSelectDialog({
+        void showSelectDialog({
           title: t('setting__backup_other_export_dir'),
           // defaultPath: currentStting.value.download.savePath,
           properties: ['openDirectory'],
         }).then(result => {
           if (result.canceled) return
-          exportPlayListToText(result.filePaths[0], false)
+          void exportPlayListToText(result.filePaths[0], false)
         })
       }
     }
@@ -389,23 +387,23 @@ export default {
         confirmButtonText: t('confirm_button_text'),
       })
       if (confirm) {
-        openSaveDir({
+        void openSaveDir({
           title: t('setting__backup_other_export_dir'),
           defaultPath: 'lx_list_all.csv',
         }).then(result => {
           if (result.canceled) return
           let path = result.filePath
           if (!path.endsWith('.csv')) path += '.csv'
-          exportPlayListToCsv(path, true)
+          void exportPlayListToCsv(path, true)
         })
       } else {
-        showSelectDialog({
+        void showSelectDialog({
           title: t('setting__backup_other_export_dir'),
           // defaultPath: currentStting.value.download.savePath,
           properties: ['openDirectory'],
         }).then(result => {
           if (result.canceled) return
-          exportPlayListToCsv(result.filePaths[0], false)
+          void exportPlayListToCsv(result.filePaths[0], false)
         })
       }
     }
@@ -434,7 +432,7 @@ export default {
 </script>
 
 <style lang="less" module>
-.save-path {
+.savePath {
   font-size: 12px;
 }
 </style>

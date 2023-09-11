@@ -82,9 +82,9 @@
 import { openUrl } from '@common/utils/electron'
 
 import musicSdk from '@renderer/utils/musicSdk'
-import DuplicateMusicModal from './components/DuplicateMusicModal'
-import ListSortModal from './components/ListSortModal'
-import ListUpdateModal from './components/ListUpdateModal'
+import DuplicateMusicModal from './components/DuplicateMusicModal.vue'
+import ListSortModal from './components/ListSortModal.vue'
+import ListUpdateModal from './components/ListUpdateModal.vue'
 
 import { defaultList, loveList, userLists, fetchingListStatus } from '@renderer/store/list/state'
 import { removeUserList } from '@renderer/store/list/action'
@@ -148,16 +148,16 @@ export default {
         url = await musicSdk[source].songList.getDetailPageUrl(sourceListId)
       }
       if (!url) return
-      openUrl(url)
+      void openUrl(url)
     }
 
     const handleRemove = (listInfo) => {
-      dialog.confirm({
+      void dialog.confirm({
         message: t('lists__remove_tip', { name: listInfo.name }),
         confirmButtonText: t('lists__remove_tip_button'),
       }).then(isRemove => {
         if (!isRemove) return
-        removeUserList([listInfo.id])
+        void removeUserList([listInfo.id])
         if (props.listId == listInfo.id) {
           handleListToggle(LIST_IDS.DEFAULT)
         }
@@ -212,7 +212,7 @@ export default {
 
     watch(() => userLists, (lists) => {
       if (lists.some(l => l.id == props.listId)) return
-      router.replace({
+      void router.replace({
         path: '/list',
         query: {
           id: defaultList.id,

@@ -19,52 +19,27 @@ declare namespace LX {
     }
     type SyncAction<A, D = undefined> = D extends undefined ? SyncActionBase<A> : SyncActionData<A, D>
 
-    type SyncMainWindowActions = SyncAction<'select_mode', string>
+
+    interface ModeTypes {
+      list: LX.Sync.List.SyncMode
+      dislike: LX.Sync.Dislike.SyncMode
+    }
+
+    type ModeType = { [K in keyof ModeTypes]: { type: K, mode: ModeTypes[K] } }[keyof ModeTypes]
+
+    type SyncMainWindowActions = SyncAction<'select_mode', { deviceName: string, type: keyof ModeTypes }>
     | SyncAction<'close_select_mode'>
     | SyncAction<'client_status', ClientStatus>
     | SyncAction<'server_status', ServerStatus>
 
-    type SyncServiceActions = SyncAction<'select_mode', Mode>
+    type SyncServiceActions = SyncAction<'select_mode', ModeType>
     | SyncAction<'get_server_status'>
     | SyncAction<'get_client_status'>
     | SyncAction<'generate_code'>
     | SyncAction<'enable_server', EnableServer>
     | SyncAction<'enable_client', EnableClient>
 
-    type ActionList = SyncAction<'list_data_overwrite', LX.List.ListActionDataOverwrite>
-    | SyncAction<'list_create', LX.List.ListActionAdd>
-    | SyncAction<'list_remove', LX.List.ListActionRemove>
-    | SyncAction<'list_update', LX.List.ListActionUpdate>
-    | SyncAction<'list_update_position', LX.List.ListActionUpdatePosition>
-    | SyncAction<'list_music_add', LX.List.ListActionMusicAdd>
-    | SyncAction<'list_music_move', LX.List.ListActionMusicMove>
-    | SyncAction<'list_music_remove', LX.List.ListActionMusicRemove>
-    | SyncAction<'list_music_update', LX.List.ListActionMusicUpdate>
-    | SyncAction<'list_music_update_position', LX.List.ListActionMusicUpdatePosition>
-    | SyncAction<'list_music_overwrite', LX.List.ListActionMusicOverwrite>
-    | SyncAction<'list_music_clear', LX.List.ListActionMusicClear>
-
-    type ActionSync = SyncAction<'list:sync:list_sync_get_md5', string>
-    | SyncAction<'list:sync:list_sync_get_list_data', ListData>
-    | SyncAction<'list:sync:list_sync_get_sync_mode', Mode>
-    | SyncAction<'list:sync:action', ActionList>
-    // | SyncAction<'finished'>
-
-    type ActionSyncType = Actions<ActionSync>
-
-    type ActionSyncSend = SyncAction<'list:sync:list_sync_get_md5'>
-    | SyncAction<'list:sync:list_sync_get_list_data'>
-    | SyncAction<'list:sync:list_sync_get_sync_mode'>
-    | SyncAction<'list:sync:list_sync_set_data', LX.Sync.ListData>
-    | SyncAction<'list:sync:action', ActionList>
-    | SyncAction<'list:sync:finished'>
-
-    type ActionSyncSendType = Actions<ActionSyncSend>
-
-    interface List {
-      action: string
-      data: any
-    }
+    type ServerDevices = ServerKeyInfo[]
 
     interface ServerStatus {
       status: boolean
@@ -90,21 +65,21 @@ declare namespace LX {
       clientId: string
       key: string
       deviceName: string
-      lastSyncDate?: number
-      snapshotKey: string
+      lastConnectDate?: number
       isMobile: boolean
     }
 
-    type ListData = Omit<LX.List.ListDataFull, 'tempList'>
-
-    type Mode = 'merge_local_remote'
-    | 'merge_remote_local'
-    | 'overwrite_local_remote'
-    | 'overwrite_remote_local'
-    | 'overwrite_local_remote_full'
-    | 'overwrite_remote_local_full'
-    // | 'none'
-    | 'cancel'
-
+    interface ListConfig {
+      skipSnapshot: boolean
+    }
+    interface DislikeConfig {
+      skipSnapshot: boolean
+    }
+    type ServerType = 'desktop-app' | 'server'
+    interface EnabledFeatures {
+      list?: false | ListConfig
+      dislike?: false | DislikeConfig
+    }
+    type SupportedFeatures = Partial<{ [k in keyof EnabledFeatures]: number }>
   }
 }

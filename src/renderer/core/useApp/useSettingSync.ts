@@ -2,14 +2,14 @@ import { watch } from '@common/utils/vueTools'
 import { isFullscreen, proxy, sync, windowSizeList } from '@renderer/store'
 import { appSetting } from '@renderer/store/setting'
 import { sendSyncAction, setTaskBarProgress, setWindowSize } from '@renderer/utils/ipc'
-import { setLanguage } from '@/lang'
+import { setLanguage } from '@root/lang'
 import { setUserApi } from '../apiSource'
 // import { applyTheme, getThemes } from '@renderer/store/utils'
 
 
 export default () => {
   watch(() => appSetting['common.windowSizeId'], (index) => {
-    let info = index == null ? windowSizeList[2] : windowSizeList[index]
+    const info = index == null ? windowSizeList[2] : windowSizeList[index]
     setWindowSize(info.width, info.height)
   })
   watch(() => appSetting['common.fontSize'], (fontSize) => {
@@ -27,7 +27,7 @@ export default () => {
   })
 
   watch(() => appSetting['common.font'], (val) => {
-    document.documentElement.style.fontFamily = val
+    document.documentElement.style.fontFamily = /\s/.test(val) ? `"${val}"` : val
   }, {
     immediate: true,
   })
@@ -46,6 +46,8 @@ export default () => {
               enable: appSetting['sync.enable'],
               port: appSetting['sync.server.port'],
             },
+          }).catch(err => {
+            console.log(err)
           })
         }
         break
@@ -57,6 +59,8 @@ export default () => {
               enable: appSetting['sync.enable'],
               host: appSetting['sync.client.host'],
             },
+          }).catch(err => {
+            console.log(err)
           })
         }
         break

@@ -34,13 +34,16 @@ export default {
       return name
     })
     const lrcStyles = computed(() => ({
-      fontFamily: setting['desktopLyric.style.font'],
+      fontFamily: /\s/.test(setting['desktopLyric.style.font']) ? `"${setting['desktopLyric.style.font']}"` : setting['desktopLyric.style.font'],
       fontSize: Math.trunc(setting['desktopLyric.style.fontSize']) + 'px',
       opacity: setting['desktopLyric.style.opacity'] / 100,
       textAlign: setting['desktopLyric.style.align'],
       '--line-gap': setting['desktopLyric.style.lineGap'] + 'px',
       '--line-extended-gap': (setting['desktopLyric.style.lineGap'] / 3).toFixed(2) + 'px',
     }))
+    const isComputeHeight = computed(() => {
+      return setting['desktopLyric.style.isZoomActiveLrc'] && !setting['desktopLyric.isDelayScroll']
+    })
     const {
       dom_lyric,
       dom_lyric_text,
@@ -48,7 +51,7 @@ export default {
       handleLyricMouseDown,
       handleLyricTouchStart,
       handleWheel,
-    } = useLyric()
+    } = useLyric(isComputeHeight)
 
     return {
       classNames,
@@ -198,7 +201,7 @@ export default {
 //   // -webkit-text-fill-color: #fff;
 //   // -webkit-text-stroke: thin #124628;
 // }
-.lyric-space {
+.lyricSpace {
   height: 80%;
 }
 // .lyric-text {
@@ -224,7 +227,7 @@ export default {
     }
   }
 }
-.lrc-active-zoom {
+.lrcActiveZoom {
   :global {
     .line-content {
       &.active {
@@ -246,21 +249,21 @@ export default {
     }
   }
 }
-.font-weight-font {
+.fontWeightFont {
   :global {
     .font-mode > .line {
       font-weight: bold;
     }
   }
 }
-.font-weight-line {
+.fontWeightLine {
   :global {
     .line-mode > .line {
       font-weight: bold;
     }
   }
 }
-.font-weight-extended {
+.fontWeightExtended {
   :global {
     .extended {
       font-weight: bold;

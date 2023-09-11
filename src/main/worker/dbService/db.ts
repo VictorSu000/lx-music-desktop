@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3'
 import path from 'path'
-import tables from './tables'
+import tables, { DB_VERSION } from './tables'
 import verifyDB from './verifyDB'
-// import migrateData from './migrate'
+import migrateData from './migrate'
 
 let db: Database.Database
 
@@ -10,7 +10,7 @@ let db: Database.Database
 const initTables = (db: Database.Database) => {
   db.exec(`
     ${Array.from(tables.values()).join('\n')}
-    INSERT INTO "main"."db_info" ("field_name", "field_value") VALUES ('version', '1');
+    INSERT INTO "main"."db_info" ("field_name", "field_value") VALUES ('version', '${DB_VERSION}');
   `)
 }
 
@@ -25,19 +25,19 @@ export const init = (lxDataPath: string): boolean | null => {
     db = new Database(databasePath, {
       fileMustExist: true,
       nativeBinding,
-      verbose: global.isDev ? console.log : undefined,
+      // verbose: process.env.NODE_ENV !== 'production' ? console.log : undefined,
     })
   } catch (error) {
     console.log(error)
     db = new Database(databasePath, {
       nativeBinding,
-      verbose: global.isDev ? console.log : undefined,
+      // verbose: process.env.NODE_ENV !== 'production' ? console.log : undefined,
     })
     initTables(db)
     dbFileExists = false
   }
 
-  // if (dbFileExists) migrateData(db)
+  if (dbFileExists) migrateData(db)
 
   // https://www.sqlite.org/pragma.html#pragma_optimize
   if (dbFileExists) db.exec('PRAGMA optimize;')

@@ -2,7 +2,7 @@
   <material-modal :show="visible" teleport="#view" bg-close @close="closeModal" @after-leave="handleAfterLeave">
     <main :class="$style.main">
       <div :class="$style.header">
-        <h2>{{ listInfo.name }}</h2>
+        <h2>{{ listName }}</h2>
       </div>
       <section>
         <h3 :class="$style.title">{{ $t('list_sort_modal_by_field') }}</h3>
@@ -10,31 +10,31 @@
           <li :class="$style.listItem">
             <base-checkbox
               id="list_sort_modal_field_name" v-model="sortField" name="list_sort_modal_field" :aria-label="$t('list_sort_modal_by_name')"
-              need="need" value="name" :label="$t('list_sort_modal_by_name')"
+              need="need" value="name" :disabled="disabledSortFislds" :label="$t('list_sort_modal_by_name')"
             />
           </li>
           <li :class="$style.listItem">
             <base-checkbox
               id="list_sort_modal_field_singer" v-model="sortField" name="list_sort_modal_field"
-              need="need" value="singer" :label="$t('list_sort_modal_by_singer')"
+              need="need" value="singer" :disabled="disabledSortFislds" :label="$t('list_sort_modal_by_singer')"
             />
           </li>
           <li :class="$style.listItem">
             <base-checkbox
               id="list_sort_modal_field_album" v-model="sortField" name="list_sort_modal_field"
-              need="need" value="album" :label="$t('list_sort_modal_by_album')"
+              need="need" value="albumName" :disabled="disabledSortFislds" :label="$t('list_sort_modal_by_album')"
             />
           </li>
           <li :class="$style.listItem">
             <base-checkbox
               id="list_sort_modal_field_time" v-model="sortField" name="list_sort_modal_field"
-              need="need" value="interval" :label="$t('list_sort_modal_by_time')"
+              need="need" value="interval" :disabled="disabledSortFislds" :label="$t('list_sort_modal_by_time')"
             />
           </li>
           <li :class="$style.listItem">
             <base-checkbox
               id="list_sort_modal_field_source" v-model="sortField" name="list_sort_modal_field"
-              need="need" value="source" :label="$t('list_sort_modal_by_source')"
+              need="need" value="source" :disabled="disabledSortFislds" :label="$t('list_sort_modal_by_source')"
             />
           </li>
         </ul>
@@ -54,6 +54,12 @@
               need="need" value="down" :label="$t('list_sort_modal_by_down')"
             />
           </li>
+          <li :class="$style.listItem">
+            <base-checkbox
+              id="list_sort_modal_type_random" v-model="sortType" name="list_sort_modal_type"
+              need="need" value="random" :label="$t('list_sort_modal_by_random')"
+            />
+          </li>
         </ul>
       </section>
       <div :class="$style.footer">
@@ -65,9 +71,11 @@
 </template>
 
 <script>
-import { ref } from '@common/utils/vueTools'
+import { ref, computed } from '@common/utils/vueTools'
 // import { dialog } from '@renderer/plugins/Dialog'
 import { getListMusics, updateListMusicsPosition } from '@renderer/store/list/action'
+import { useI18n } from '@root/lang'
+import { LIST_IDS } from '@common/constants'
 
 
 export default {
@@ -83,7 +91,7 @@ export default {
   },
   emits: ['update:visible'],
   setup(props, { emit }) {
-    // const { t } = useI18n()
+    const t = useI18n()
     const sortField = ref('')
     const sortType = ref('')
     const closeModal = () => {
@@ -94,7 +102,7 @@ export default {
       sortType.value = ''
     }
     const verify = () => {
-      return !!sortField.value && !!sortType.value
+      return !!sortType.value && (!!sortField.value || sortType.value == 'random')
     }
     const handleSort = async() => {
       if (!verify()) return
@@ -109,14 +117,32 @@ export default {
       console.log(sortType.value, sortField.value)
 
       closeModal()
-      updateListMusicsPosition({ listId: props.listInfo.id, position: 0, ids: list.map(m => m.id) })
+      void updateListMusicsPosition({ listId: props.listInfo.id, position: 0, ids: list.map(m => m.id) })
     }
+
+    const listName = computed(() => {
+      switch (props.listInfo.id) {
+        case LIST_IDS.DEFAULT:
+          return t(props.listInfo.name)
+        case LIST_IDS.LOVE:
+          return t(props.listInfo.name)
+        default:
+          return props.listInfo.name
+      }
+    })
+
+    const disabledSortFislds = computed(() => {
+      return sortType.value == 'random'
+    })
+
     return {
       sortField,
       sortType,
+      disabledSortFislds,
       closeModal,
       handleSort,
       handleAfterLeave,
+      listName,
     }
   },
 }
