@@ -264,7 +264,7 @@ export default {
         type: 'playList_v2',
         data: await getAllLists(),
       }
-      saveLxConfigFileWebDAV(data, (message) => { dialog({ message, confirmButtonText: '好的' }) })
+      await saveLxConfigFileWebDAV(data, async(message) => { await dialog({ message, confirmButtonText: '好的' }) })
     }
 
     const handleImportPlayListFromWeb = async() => {
@@ -288,11 +288,11 @@ export default {
       try {
         listData = await readLxConfigFileWebDAV()
       } catch (error) {
-        dialog({ message: '导入云端歌单失败，' + error, confirmButtonText: '好的' })
+        await dialog({ message: '导入云端歌单失败，' + error, confirmButtonText: '好的' })
       }
 
       if (await doImportPlayList(listData) === null) {
-        dialog({ message: '导入云端歌单成功', confirmButtonText: '好的' })
+        await dialog({ message: '导入云端歌单成功', confirmButtonText: '好的' })
       }
     }
 
