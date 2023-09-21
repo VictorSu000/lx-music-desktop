@@ -7,12 +7,14 @@ declare namespace LX {
       source?: LX.OnlineSource
       sourceListId?: string
       // position?: number
+      flagDupAll?: boolean 
       locationUpdateTime: number | null
     }
 
     interface MyDefaultListInfo {
       id: 'default'
       name: 'list__name_default'
+      flagDupAll?: boolean
       // name: '试听列表'
       // list: LX.Music.MusicInfo[]
     }
@@ -20,6 +22,7 @@ declare namespace LX {
     interface MyLoveListInfo {
       id: 'love'
       name: 'list__name_love'
+      flagDupAll?: boolean
       // name: '我的收藏'
       // list: LX.Music.MusicInfo[]
     }

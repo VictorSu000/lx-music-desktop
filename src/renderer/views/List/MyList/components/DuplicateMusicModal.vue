@@ -10,12 +10,12 @@
       <div :class="$style.listItem">
         <div :class="$style.num">{{ item.index + 1 }}</div>
         <div :class="$style.textContent">
-          <h3 :class="$style.text" :aria-label="`${item.musicInfo.name} - ${item.musicInfo.singer}`">{{ item.musicInfo.name }} - {{ item.musicInfo.singer }}</h3>
+          <h3 :class="$style.text" :aria-label="`${item.musicInfo.name} - ${item.musicInfo.singer}`">{{ item.musicInfo.name }} - {{ item.musicInfo.singer }} <span v-if="item.musicInfo.listName" :class="$style.albumName"> {{ item.musicInfo.listName }}</span></h3>
           <h3 v-if="item.musicInfo.meta.albumName" :class="[$style.text, $style.albumName]" :aria-label="item.musicInfo.meta.albumName">{{ item.musicInfo.meta.albumName }}</h3>
         </div>
         <div :class="$style.label">{{ item.musicInfo.source }}</div>
         <div :class="$style.label">{{ item.musicInfo.interval }}</div>
-        <div :class="$style.btns">
+        <div v-if="!item.musicInfo.listName" :class="$style.btns">
           <button type="button" :class="$style.btn" @click="handlePlay(index)">
             <svg v-once version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" height="50%" viewBox="0 0 287.386 287.386" space="preserve">
               <use xlink:href="#icon-testPlay" />
@@ -39,6 +39,7 @@
 import { ref, watch, computed, markRawList } from '@common/utils/vueTools'
 import { playList } from '@renderer/core/player'
 import { getListMusics, removeListMusics } from '@renderer/store/list/action'
+import { loveList, userLists } from '@renderer/store/list/state'
 import { isFullscreen } from '@renderer/store'
 import { appSetting } from '@renderer/store/setting'
 import { getFontSizeWithScreen } from '@renderer/utils'
@@ -68,9 +69,26 @@ export default {
       const { index: musicInfoIndex } = duplicateList.value[index]
       playList(props.listInfo.id, musicInfoIndex)
     }
+    const getAllLists = async() => {
+      const lists = []
+      // lists.push(await getListMusics(defaultList.id).then(musics => toRaw(musics))) 不查试听列表
+      lists.push(await getListMusics(loveList.id).then(musics => musics.map(e => ({ ...e, listName: loveList.name }))))
+
+      for await (const list of userLists) {
+        lists.push(await getListMusics(list.id).then(musics => musics.map(e => ({ ...e, listName: list.name }))))
+      }
+
+      return lists.flat()
+    }
     const handleFilterList = async() => {
       // console.time('filter')
-      duplicateList.value = markRawList(await window.lx.worker.main.filterDuplicateMusic(await getListMusics(props.listInfo.id)))
+      // console.log('dup', props.listInfo)
+      if (props.listInfo.flagDupAll === true) {
+        // 此时查找所有列表的重复歌曲
+        duplicateList.value = markRawList(await window.lx.worker.main.filterDuplicateMusic(await getAllLists()))
+      } else {
+        duplicateList.value = markRawList(await window.lx.worker.main.filterDuplicateMusic(await getListMusics(props.listInfo.id)))
+      }
       // console.log(duplicateList.value)
       // console.timeEnd('filter')
     }

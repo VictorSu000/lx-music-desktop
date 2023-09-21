@@ -49,6 +49,11 @@ export default ({
         disabled: !menuControl.duplicate,
       },
       {
+        name: '所有重复歌曲',
+        action: 'duplicateAll',
+        disabled: false,
+      },
+      {
         name: t('lists__select_local_file'),
         action: 'local_file',
         disabled: !menuControl.local_file,
@@ -179,6 +184,10 @@ export default ({
       case 'remove':
         handleRemove(listInfo)
         break
+      case 'duplicateAll':
+        listInfo.flagDupAll = true
+        // console.log('list', listInfo)
+        handleDuplicateList(listInfo)
     }
   }
 
