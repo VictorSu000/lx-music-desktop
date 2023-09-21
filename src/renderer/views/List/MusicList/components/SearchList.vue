@@ -24,7 +24,7 @@
               <li v-for="(item, index) in resultList" :key="item.songmid" :class="selectIndex === index ? $style.select : null" @mouseenter="selectIndex = index" @click="handleTemplistClick(index)">
                 <div :class="$style.img" />
                 <div :class="$style.text">
-                  <h3 :class="$style.text">{{ item.name }} - {{ item.singer }}</h3>
+                  <h3 :class="$style.text">{{ item.name }} - {{ item.singer }} <span :class="$style.albumName">{{ item.listName }}</span></h3>
                   <h3 v-if="item.meta.albumName" :class="[$style.text, $style.albumName]">{{ item.meta.albumName }}</h3>
                 </div>
                 <div :class="$style.source">{{ item.source }}</div>
@@ -41,6 +41,21 @@
 import { debounce } from '@common/utils'
 import { clipboardReadText } from '@common/utils/electron'
 import { toRaw } from '@common/utils/vueTools'
+
+import { getListMusics } from '@renderer/store/list/action'
+import { loveList, userLists } from '@renderer/store/list/state'
+
+const getAllLists = async() => {
+  const lists = []
+  // lists.push(await getListMusics(defaultList.id).then(musics => toRaw(musics))) 不搜试听列表
+  lists.push(await getListMusics(loveList.id).then(musics => toRaw(musics).map(e => ({ ...e, listName: loveList.name }))))
+
+  for await (const list of userLists) {
+    lists.push(await getListMusics(list.id).then(musics => toRaw(musics).map(e => ({ ...e, listName: list.name }))))
+  }
+
+  return lists.flat()
+}
 
 export default {
   props: {
@@ -213,7 +228,10 @@ export default {
     },
     async handleSearch() {
       if (!this.text.length) return this.resultList = []
-      this.resultList = await window.lx.worker.main.searchListMusic(toRaw(this.list), this.text)
+      // const toSearch = toRaw(this.list) // 此时是只搜当前列表，后面改为了搜索所有列表（除了试听列表）
+      const toSearch = await getAllLists()
+      this.resultList = await window.lx.worker.main.searchListMusic(toSearch, this.text)
+      // console.log(this.resultList)
     },
   },
 }
