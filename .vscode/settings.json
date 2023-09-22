@@ -13,5 +13,11 @@
   "i18n-ally.sortKeys": true,
   "javascript.preferences.importModuleSpecifier": "non-relative",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "vue.codeActions.enabled": false
+  "vue.codeActions.enabled": false,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true
+  }
+
 }

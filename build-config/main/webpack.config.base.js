@@ -45,4 +45,7 @@ module.exports = {
   plugins: [
     new ESLintPlugin(),
   ],
+  watchOptions: {
+    ignored: /node_modules/,
+  },
 }
