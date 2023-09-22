@@ -8,8 +8,9 @@ export default ({ setSelectedIndex, handlePlayMusic, listRef }) => {
     isShowSearchBar.value = true
   }
 
-  const handleMusicSearchAction = ({ action, data: { index, isPlay } = {} }) => {
+  const handleMusicSearchAction = ({ action, data: { index, isPlay, search } = {} }) => {
     isShowSearchBar.value = false
+
     switch (action) {
       case 'listClick':
         if (index < 0) return
@@ -20,6 +21,13 @@ export default ({ setSelectedIndex, handlePlayMusic, listRef }) => {
             if (isPlay) handlePlayMusic(index)
           }, 600)
         })
+        break
+
+      case 'search':
+        if (search) {
+          // 触发全网搜索
+          handlePlayMusic(search)
+        }
         break
     }
   }

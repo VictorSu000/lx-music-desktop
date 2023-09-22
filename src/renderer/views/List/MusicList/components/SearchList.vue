@@ -21,6 +21,12 @@
           </div>
           <div v-if="resultList" ref="dom_scrollContainer" class="scroll" :class="$style.list" :style="listStyle">
             <ul ref="dom_list">
+              <li key="search_web" @click="handleSearchWebClick()">
+                <div :class="$style.img" />
+                <div :class="$style.text">
+                  <h3 :class="[$style.text, $style.albumName]">全网搜索该歌曲</h3>
+                </div>
+              </li>
               <li v-for="(item, index) in resultList" :key="item.songmid" :class="selectIndex === index ? $style.select : null" @mouseenter="selectIndex = index" @click="handleTemplistClick(index)">
                 <div :class="$style.img" />
                 <div :class="$style.text">
@@ -171,6 +177,14 @@ export default {
       this.sendEvent('listClick', {
         index: this.list.findIndex(m => m.id == id),
         isPlay: this.isModDown,
+        search: null,
+      })
+    },
+    handleSearchWebClick() {
+      this.sendEvent('search', {
+        index: 0,
+        isPlay: false,
+        search: this.text,
       })
     },
     handleHide() {
@@ -345,6 +359,9 @@ export default {
       flex-flow: row nowrap;
 
       &.select {
+        background-color: var(--color-primary-dark-100-alpha-700);
+      }
+      &:hover {
         background-color: var(--color-primary-dark-100-alpha-700);
       }
       border-radius: 4px;

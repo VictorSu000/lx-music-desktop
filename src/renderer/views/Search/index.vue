@@ -9,6 +9,7 @@
       <music-list v-else v-show="searchText" :page="page" :source-id="source" />
       <blank-view :visible="!searchText" :source="source" />
     </div>
+    <search-list :list="[]" :visible="isShowSearchBar" @action="handleMusicSearchAction" />
   </div>
 </template>
 
@@ -23,6 +24,9 @@ import SongListList from './SongListList/index.vue'
 import BlankView from './components/BlankView.vue'
 import { computed, ref } from '@common/utils/vueTools'
 import { sourceNames } from '@renderer/store'
+
+import SearchList from '@renderer/views/List/MusicList/components/SearchList.vue'
+import useSearch from '@renderer/views/List/MusicList/useSearch'
 
 const source = ref('kw')
 const searchType = ref(null)
@@ -62,6 +66,7 @@ export default {
     MusicList,
     SongListList,
     BlankView,
+    SearchList,
   },
   beforeRouteEnter: verifyQueryParams,
   beforeRouteUpdate: verifyQueryParams,
@@ -75,6 +80,28 @@ export default {
         label: sourceNames.value[id],
       }
     })
+
+    const {
+      isShowSearchBar,
+      handleMusicSearchAction,
+    } = useSearch({
+      handlePlayMusic: (key) => {
+        // console.log(key)
+        void router.replace({
+          path: route.path,
+          query: {
+            ...route.query,
+            text: key,
+            page: 1,
+          },
+        })
+        searchText.value = key
+      },
+      setSelectedIndex: null,
+      listRef: null,
+    })
+
+
     const handleSourceChange = (id) => {
       void router.replace({
         path: route.path,
@@ -113,6 +140,8 @@ export default {
       handleTypeChange,
       page,
       searchText,
+      isShowSearchBar,
+      handleMusicSearchAction,
     }
   },
 }

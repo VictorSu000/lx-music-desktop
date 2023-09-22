@@ -104,6 +104,7 @@
 
 <script>
 import { clipboardWriteText } from '@common/utils/electron'
+import { useRouter } from '@common/utils/vueRouter'
 import { assertApiSupport } from '@renderer/store/utils'
 import SearchList from './components/SearchList.vue'
 import MusicSortModal from './components/MusicSortModal.vue'
@@ -132,6 +133,8 @@ export default {
   },
   emits: ['show-menu'],
   setup(props, { emit }) {
+    const router = useRouter()
+
     const actionButtonsVisible = appSetting['list.actionButtonsVisible']
 
     let scrollIndex = null
@@ -234,8 +237,19 @@ export default {
       handleMusicSearchAction,
     } = useSearch({
       setSelectedIndex,
-      handlePlayMusic,
       listRef,
+      handlePlayMusic: (key) => {
+        if (typeof key === 'number') {
+          handlePlayMusic(key)
+        } else {
+          void router.replace({
+            path: '/search',
+            query: {
+              text: key,
+            },
+          })
+        }
+      },
     })
 
     const { saveListPosition, restoreScroll } = useListScroll({ props, listRef, list, handleRestoreScroll })
