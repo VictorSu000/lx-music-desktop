@@ -37,43 +37,43 @@ jobs:
   #     - name: Lint src code
   #       run: npm run lint
 
-  Windows:
-    name: Windows
-    runs-on: windows-latest
-    # needs: CheckCode
-    steps:
-      - name: Check out git repository
-        uses: actions/checkout@v3
+  # Windows:
+  #   name: Windows
+  #   runs-on: windows-latest
+  #   # needs: CheckCode
+  #   steps:
+  #     - name: Check out git repository
+  #       uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '16'
 
-      - name: Cache file
-        uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            %APPDATA%\npm-cache
-            %LOCALAPPDATA%\electron\Cache
-            %LOCALAPPDATA%\electron-builder\Cache
-          key: ${{ runner.os }}-build-caches-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
+  #     - name: Cache file
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           node_modules
+  #           %APPDATA%\npm-cache
+  #           %LOCALAPPDATA%\electron\Cache
+  #           %LOCALAPPDATA%\electron-builder\Cache
+  #         key: ${{ runner.os }}-build-caches-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-build-
 
-      - name: Install Dependencies
-        run: |
-          npm ci
+  #     - name: Install Dependencies
+  #       run: |
+  #         npm ci
 
-      - name: Pack package
-        run: npm run pack:win
+  #     - name: Pack package
+  #       run: npm run pack:win
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: lx-music-desktop-x64-Setup
-          path: build/*-x64-Setup.exe
+  #     - name: Upload Artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: lx-music-desktop-x64-Setup
+  #         path: build/*-x64-Setup.exe
 
   Mac:
     name: Mac
@@ -106,6 +106,12 @@ jobs:
       - name: Install Dependencies
         run: |
           npm ci
+
+      - name: Add WebDAV
+        run: |
+          sed -i.bak 's/const wfs = createAdapter("", {/const wfs = createAdapter("${{ secrets.WEBDAV_URL }}", {/' src/common/utils/webdav.ts
+          sed -i.bak 's/username: "",/username: "${{ secrets.WEBDAV_USERNAME }}",/' src/common/utils/webdav.ts
+          sed -i.bak 's/password: ""/password: "${{ secrets.WEBDAV_PASSWORD }}"/' src/common/utils/webdav.ts
 
       - name: Pack package
         run: npm run pack:mac
