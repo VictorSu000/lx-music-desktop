@@ -6,7 +6,7 @@
   "productName": "lx-music-desktop",
   "scripts": {
     "pack": "node build-config/pack.js && npm run pack:win:setup:x64",
-    "pack:win": "node build-config/pack.js && npm run pack:win:setup:x64 && npm run pack:win:setup:x86 && npm run pack:win:setup:arm64 && npm run pack:win:setup:x86_64 && npm run pack:win:7z",
+    "pack:win": "node build-config/pack.js && npm run pack:win:setup:x64",
     "pack:win:setup:x86_64": "node build-config/build-pack.js target=win arch=x86_64 type=setup",
     "pack:win:setup:x64": "node build-config/build-pack.js target=win arch=x64 type=setup",
     "pack:win:setup:x86": "node build-config/build-pack.js target=win arch=x86 type=setup",
@@ -28,7 +28,7 @@
     "pack:linux:deb:armv7l": "node build-config/build-pack.js target=linux arch=armv7l type=deb",
     "pack:linux:rpm": "node build-config/build-pack.js target=linux arch=x64 type=rpm",
     "pack:linux:pacman": "node build-config/build-pack.js target=linux arch=x64 type=pacman",
-    "pack:mac": "node build-config/pack.js && npm run pack:mac:dmg && npm run pack:mac:dmg:arm64",
+    "pack:mac": "node build-config/pack.js && npm run pack:mac:dmg",
     "pack:mac:dmg": "node build-config/build-pack.js target=mac arch=x64 type=dmg",
     "pack:mac:dmg:arm64": "node build-config/build-pack.js target=mac arch=arm64 type=dmg",
     "pack:dir": "node build-config/pack.js && node build-config/build-pack.js target=dir",
