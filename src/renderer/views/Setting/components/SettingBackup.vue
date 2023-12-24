@@ -288,7 +288,7 @@ export default {
       try {
         listData = await readLxConfigFileWebDAV()
       } catch (error) {
-        await dialog({ message: '导入云端歌单失败，' + error, confirmButtonText: '好的' })
+        await dialog({ message: '导入云端歌单失败，' + error.message, confirmButtonText: '好的' })
       }
 
       if (await doImportPlayList(listData) === null) {
