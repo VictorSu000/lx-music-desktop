@@ -5,7 +5,7 @@
  * @author VictorSu
  */
 
-const { EVENT_NAMES, request, on, send, utils: lxUtils } = globalThis.lx
+const { EVENT_NAMES, request, on, send, utils: lxUtils, version } = globalThis.lx
 
 const md5 = str => utils.crypto.md5(str)
 
@@ -38,8 +38,8 @@ const httpRequest = (url, options) => new Promise((resolve, reject) => {
 
 function getKgMusicUrl(songInfo, type) {
   // 来源：https://github.com/lyswhut/lx-music-desktop/issues/1624
-  let key = md5(hash.toLowerCase()+'kgcloudv2100500')
-  let target_url = `http://trackercdn.kugou.com/i/v2/?cmd=26&key=${key}&hash=${hash.toLowerCase()}&pid=1&behavior=play&mid=0&appid=1005&userid=0&version=8876&vipType=0&token=0`
+  let key = md5(songInfo.hash.toLowerCase()+'kgcloudv2100500')
+  let target_url = `http://trackercdn.kugou.com/i/v2/?cmd=26&key=${key}&hash=${songInfo.hash.toLowerCase()}&pid=1&behavior=play&mid=0&appid=1005&userid=0&version=8876&vipType=0&token=0`
   return httpRequest(target_url, {
     method: 'get',
     timeout,
@@ -185,7 +185,7 @@ function getWyMusicUrl(songInfo, type) {
   const target_url = 'https://interface3.music.163.com/eapi/song/enhance/player/url'
   const eapiUrl = '/api/song/enhance/player/url'
   const d = {
-    ids: `[${songmid}]`,
+    ids: `[${songInfo.songmid}]`,
     br: quality,
   }
   const data = eapi(eapiUrl, d)
