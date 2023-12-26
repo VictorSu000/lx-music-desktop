@@ -1,45 +1,61 @@
 /**
  * @name 试听源
- * @description 来源于旧版洛雪（手机版），本质上来源于listen1
+ * @description 来源于旧版洛雪（手机版）、listen1、和github issue提供
  * @version 1.0.0
  * @author VictorSu
  */
 
-/**
- * kg: https://github.com/listen1/listen1_chrome_extension/blob/master/js/provider/kugou.js
- * tx: https://github.com/listen1/listen1_chrome_extension/blob/master/js/provider/qq.js
- * wy: https://github.com/listen1/listen1_chrome_extension/blob/master/js/provider/netease.js
- * mg: https://github.com/listen1/listen1_chrome_extension/blob/master/js/provider/migu.js
- */
+const { EVENT_NAMES, request, on, send, utils: lxUtils } = globalThis.lx
 
-const { EVENT_NAMES, request, on, send } = globalThis.lx
+const md5 = str => utils.crypto.md5(str)
+
+const utils = {
+  buffer: {
+    from: lxUtils.buffer.from,
+    bufToString: lxUtils.buffer.bufToString,
+  },
+  crypto: {
+    aesEncrypt: lxUtils.crypto.aesEncrypt,
+    md5: lxUtils.crypto.md5,
+    randomBytes: lxUtils.crypto.randomBytes,
+    rsaEncrypt: lxUtils.crypto.rsaEncrypt,
+  },
+}
 
 const timeout = 15000
 
 const httpRequest = (url, options) => new Promise((resolve, reject) => {
   request(url, options, (err, resp) => {
-    if (err) return reject(err)
+    console.log("request", url)
+    if (err) {
+      console.error("request failed", err)
+      return reject(err)
+    }
+    console.log("request ok", resp.body)
     resolve(resp)
   })
 })
 
 function getKgMusicUrl(songInfo, type) {
-  const target_url = `https://wwwapi.kugou.com/yy/index.php?r=play/getdata&hash=${songInfo.hash}&platid=4&album_id=${songInfo.albumId}&mid=00000000000000000000000000000000`
+  // 来源：https://github.com/lyswhut/lx-music-desktop/issues/1624
+  let key = md5(hash.toLowerCase()+'kgcloudv2100500')
+  let target_url = `http://trackercdn.kugou.com/i/v2/?cmd=26&key=${key}&hash=${hash.toLowerCase()}&pid=1&behavior=play&mid=0&appid=1005&userid=0&version=8876&vipType=0&token=0`
   return httpRequest(target_url, {
     method: 'get',
     timeout,
   }).then(({ body }) => {
     // console.log(body)
 
-    if (body.status !== 1) return Promise.reject(new Error(body.err_code))
-    if (body.data.is_free_part || !body.data.play_backup_url) return Promise.reject(new Error('failed'))
+    if (body.status !== 1) return Promise.reject(new Error(`该歌曲似乎要收费……,code:${data.status}`))
 
     // then中返回值会隐式被包装成resolved的promise
-    return body.data.play_backup_url
+    return body.url[0]
   })  // then返回的promise会下一个then接收链式调用
 }
 
 function getKwMusicUrl(songInfo, type) {
+  // failed
+  // 来源手机版洛雪
   const target_url = `http://www.kuwo.cn/api/v1/www/music/playUrl?mid=${songInfo.songmid}&type=music&br=${type}`
   return httpRequest(target_url, {
     method: 'get',
@@ -60,6 +76,7 @@ function getKwMusicUrl(songInfo, type) {
 }
 
 function getTxMusicUrl(songInfo, type) {
+  // 来源手机版洛雪，洛雪注释from https://github.com/listen1/listen1_chrome_extension/blob/master/js/provider/qq.js
   const fileConfig = {
     '128k': {
       s: 'M500',
@@ -127,21 +144,48 @@ function getTxMusicUrl(songInfo, type) {
   })
 }
 
+let cookie = 'os=pc'
+
 function getWyMusicUrl(songInfo, type) {
+  // 来源：https://github.com/lyswhut/lx-music-desktop/issues/1624
+  
+  const buf2hex = buffer => { 
+    return version
+      ? utils.buffer.bufToString(buffer, 'hex')
+      : [...new Uint8Array(buffer)]
+          .map(x => x.toString(16).padStart(2, '0'))
+          .join('')
+  }
+
+  const aesEncrypt = (data, eapiKey, iv, mode) => {
+    if (!version) {
+      mode = mode.split('-').pop()
+    }
+    return utils.crypto.aesEncrypt(data, mode, eapiKey, iv)
+  }
+
   const qualitys = {
     '128k': 128000,
     '320k': 320000,
     flac: 999000,
   }
+  const eapi = (url, object) => {
+    const eapiKey = 'e82ckenh8dichen8'
 
-  let cookie = 'os=pc'
-
+    const text = typeof object === 'object' ? JSON.stringify(object) : object
+    const message = `nobody${url}use${text}md5forencrypt`
+    const digest = md5(message)
+    const data = `${url}-36cd479b6b5-${text}-36cd479b6b5-${digest}`
+    return {
+      params: buf2hex(aesEncrypt(data, eapiKey, '', 'aes-128-ecb')).toUpperCase(),
+    }
+  }
+  
   const quality = qualitys[type]
   const target_url = 'https://interface3.music.163.com/eapi/song/enhance/player/url'
   const eapiUrl = '/api/song/enhance/player/url'
-
   const d = {
-    ids: `[${songInfo.songmid}]`,
+    ids: `[${songmid}]`,
     br: quality,
   }
   const data = eapi(eapiUrl, d)
@@ -165,6 +209,8 @@ function getWyMusicUrl(songInfo, type) {
 }
 
 function getMgMusicUrl(songInfo, type) {
+  // failed
+  // 来源手机版洛雪，from https://github.com/listen1/listen1_chrome_extension/blob/master/js/provider/migu.js
   const qualitys = {
     '128k': 'PQ',
     '320k': 'HQ',
