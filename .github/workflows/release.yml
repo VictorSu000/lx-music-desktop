@@ -54,9 +54,11 @@ jobs:
 
       - name: Add WebDAV
         run: |
-          powershell.exe -Command "$filecontent = Get-Content -Path src/common/utils/webdav.ts; $newContent = $fileContent.replace('createAdapter(\"\"', 'createAdapter(\"${{ secrets.WEBDAV_URL }}\"'); $newContent | Set-Content -Path src/common/utils/webdav.ts"
-          powershell.exe -Command "$filecontent = Get-Content -Path src/common/utils/webdav.ts; $newContent = $fileContent.replace('username: \"\"', 'username: \"${{ secrets.WEBDAV_USERNAME }}\"'); $newContent | Set-Content -Path src/common/utils/webdav.ts"
-          powershell.exe -Command "$filecontent = Get-Content -Path src/common/utils/webdav.ts; $newContent = $fileContent.replace('password: \"\"', 'password: \"${{ secrets.WEBDAV_PASSWORD }}\"'); $newContent | Set-Content -Path src/common/utils/webdav.ts"
+          $filecontent = Get-Content -Path src/common/utils/webdav.ts;
+          $newContent = $fileContent.replace('createAdapter(""', 'createAdapter("${{ secrets.WEBDAV_URL }}"');
+          $newContent = $newContent.replace('username: ""', 'username: "${{ secrets.WEBDAV_USERNAME }}"');
+          $newContent = $newContent.replace('password: ""', 'password: "${{ secrets.WEBDAV_PASSWORD }}"');
+          $newContent | Set-Content -Path src/common/utils/webdav.ts
         
       - name: Pack package
         run: npm run pack:win
@@ -118,9 +120,6 @@ jobs:
     steps:
       - name: Check out git repository
         uses: actions/checkout@v4
-
-      - name: Install python3 setuptools
-        run: python3 -m pip install setuptools
 
       - name: Setup Node Env
         uses: ./.github/actions/setup
