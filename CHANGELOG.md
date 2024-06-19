@@ -6,6 +6,86 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.8.0](https://github.com/lyswhut/lx-music-desktop/compare/v2.7.0...v2.8.0) - 2024-06-01
+
+我们发布了关于 LX Music 项目发展调整与新项目计划的说明，
+详情看： https://github.com/lyswhut/lx-music-desktop/issues/1912
+
+### 新增
+
+- 新增 设置-播放设置-使用设备能处理的最大声道数输出音频 设置（未启用时固定为2声道输出），由于这用到高级音频API，考虑到在某些设备上的兼容问题，默认禁用（#1873）
+- 允许添加 `m4a`、`oga` 格式的本地歌曲到列表中（#1864）
+- 开放API支持跨域请求（#1872 @Ceale）
+- Scheme URL API新增 `music/searchPlay` 支持，用于搜索并播放指定的歌曲名字，详细入参请阅读 Scheme URL 支持文档（#1886）
+
+### 优化
+
+- 优化白色托盘图标显示，修复windows下托盘图标不清晰的问题（#1842）
+
+### 修复
+
+- 修复存在多级弹窗时的背景显示问题
+- 增大在线导入自定义源文件的大小限制问题（#1857）
+- 修复Mac下窗口出现残留阴影的问题，这解决了Mac下桌面歌词出现残留阴影的远古bug，感谢 @zclorne （#1869, Thanks @zclorne）
+- 增大在线导入自定义源文件的大小限制，解决某些音源无法导入的问题（#1857）
+- 修复Mac下即使开启了托盘， `cmd+w` 仍会中断播放的问题（#1844）
+- 修复播放详情页的歌词无法使用触碰拖动的问题（#1865）
+- 修复与优化繁体中文、英语翻译显示（#1845）
+- 修复歌曲时文件名过长导致歌曲无法下载的问题（#1877）
+- 修复文本提示气泡在内容过长时，文本未被换行而被截断的问题
+- 修复翻页按钮栏切页按钮只显示前几页的问题
+
+### 变更
+
+- 设置-播放设置-优先播放320k音质选项改为“优先播放的音质”，允许选择更高优先播放的音质，如果歌曲及音源支持的话（#1839）
+
+### 开放API变更
+
+- `/status` 的入参现在与 `/subscribe-player-status` 保持一致
+- `/status` 新增 `filter` 入参用于过滤返回的字段，并内置了默认值，与之前相比默认不再返回 `picUrl`
+- `/status` 及 `/subscribe-player-status` 的可用字段名添加了 `lyricLineAllText`，它对应的值是当前句歌词及扩展歌词文本（扩展歌词包含翻译、罗马音等，按换行符分割）
+
+详情看开放API接入文档
+
+### 其他
+
+- 更新 electron 到 v28.3.3
+
+## [2.7.0](https://github.com/lyswhut/lx-music-desktop/compare/v2.6.0...v2.7.0) - 2024-04-14
+
+### 新增
+
+- 主题编辑器添加“深色字体”选项，启用后将减少字体颜色梯度，各类字体（正文、标签字体等）颜色将更接近，这有助于解决创建全透明主题时可能出现的字体配色问题（#1799）
+- 新增在线自定义源导入功能，允许通过http/https链接导入自定义源
+- 新增HTTP开放API服务，默认关闭，该服务可以为第三方软件提供调用LX的能力，可用API看[说明文档](https://lyswhut.github.io/lx-music-doc/desktop/open-api)（#1824）
+- 托盘菜单新增播放、切歌、收藏控制
+- 添加当前软件版本所对应的代码提交版本、提交时间的显示，可到设置-版本更新查看
+
+### 优化
+
+- 主题设置默认折叠其他主题以优化进入设置界面时的性能
+- 不再丢弃kg源逐行歌词（@helloplhm-qwq）
+- 支持kw源排行榜显示大小（revert @Folltoshe #1460）
+- 托盘菜单添加多语言支持（#1802）
+- 优化本地歌曲换源匹配机制
+
+### 修复
+
+- 修复某些情况下歌曲加载时间过长时不会自动跳到下一首的问题
+- 修复mg歌词在某些情况下获取失败的问题（#1783）
+- 修复mg歌单搜索（@helloplhm-qwq）
+- 修复kg最新评论无法获取的问题（@helloplhm-qwq）
+- 修复更新超时弹窗在非更新阶段意外弹出的问题（#1797）
+- 修复网络代理设置没有对自定义源的网络请求生效的问题（#1814）
+
+### 移除
+
+- 移除未使用的网络代理设置用户名、密码设置，实际上在 v1.20.0 起这两个设置就没有在被内部使用
+
+### 其他
+
+- 更新 electron 到 v28.3.0
+
 ## [2.6.0](https://github.com/lyswhut/lx-music-desktop/compare/v2.5.0...v2.6.0) - 2024-02-01
 
 提交祝大家新年快乐！

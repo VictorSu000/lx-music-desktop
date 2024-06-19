@@ -5,6 +5,9 @@ on:
     branches:
       - release
 
+env:
+  IS_CI: 'true'
+
 jobs:
   # CheckCode:
   #   name: Lint Code
@@ -16,7 +19,7 @@ jobs:
   #     - name: Install Node.js
   #       uses: actions/setup-node@v4
   #       with:
-  #         node-version: '16'
+  #         node-version: 20
 
   #     - name: Cache file
   #       uses: actions/cache@v4
@@ -41,9 +44,7 @@ jobs:
     name: Windows
     runs-on: windows-latest
     env:
-      NPM_CACHE: '%APPDATA%\npm-cache'
-      ELECTRON_CACHE: '%LOCALAPPDATA%\electron\Cache'
-      ELECTRON_BUILDERCACHE: '%LOCALAPPDATA%\electron-builder\Cache'
+      NPM_CACHE: '%LocalAppData%/npm-cache'
     # needs: CheckCode
     steps:
       - name: Check out git repository
@@ -113,16 +114,18 @@ jobs:
     name: Mac
     runs-on: macos-latest
     env:
-      NPM_CACHE: $HOME/.npm
-      ELECTRON_CACHE: $HOME/.cache/electron
-      ELECTRON_BUILDERCACHE: $HOME/.cache/electron-builder
+      NPM_CACHE: ~/.npm
     # needs: CheckCode
     steps:
       - name: Check out git repository
         uses: actions/checkout@v4
 
       - name: Install python3 setuptools
-        run: brew install python-setuptools
+        run: |
+          mkdir ~/.venv
+          python3 -m venv ~/.venv
+          source ~/.venv/bin/activate
+          python3 -m pip install setuptools
 
       - name: Setup Node Env
         uses: ./.github/actions/setup
