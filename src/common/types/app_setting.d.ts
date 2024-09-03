@@ -98,6 +98,12 @@ declare global {
        */
       'player.isShowTaskProgess': boolean
 
+
+      /**
+       * 是否将歌词显示在状态栏
+       */
+      'player.isShowStatusBarLyric': boolean
+
       /**
        * 音量大小
        */
@@ -292,6 +298,11 @@ declare global {
        * 播放详情页-歌词对齐方式
        */
       'playDetail.style.align': 'center' | 'left' | 'right'
+
+      /**
+       * 播放详情页-是否延迟桌面歌词滚动
+       */
+      'playDetail.isDelayScroll': boolean
 
 
       /**
