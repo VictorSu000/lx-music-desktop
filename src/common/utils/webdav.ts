@@ -8,23 +8,26 @@ const wfs = createAdapter("", {
 })
 
 const configFile = "/lx-music/lx_list.lxmc"
+const configFileForMerge = "/lx-music/lx_list_merge.lxmc"
 
 
-export const saveLxConfigFileWebDAV = async(data: any, callback: Function) => {
-    wfs.writeFile(configFile, await gzipData(JSON.stringify(data)), "binary", err => {
+export const saveLxConfigFileWebDAV = async (data: any, callback: Function, useMergeFile = false) => {
+    const file = useMergeFile ? configFileForMerge : configFile
+    wfs.writeFile(file, await gzipData(JSON.stringify(data)), "binary", err => {
         if (err === null) {
             callback("歌单上传成功")
         } else {
             console.log(err)
             callback("上传歌单失败，" + err?.message)
         }
-        
+
     })
 }
-  
-export const readLxConfigFileWebDAV = async () => {
-    const rawData : Buffer= await new Promise((resolve, reject) => {
-        wfs.readFile(configFile, "binary", (err, data) => {
+
+export const readLxConfigFileWebDAV = async (useMergeFile = false) => {
+    const file = useMergeFile ? configFileForMerge : configFile
+    const rawData: Buffer = await new Promise((resolve, reject) => {
+        wfs.readFile(file, "binary", (err, data) => {
             if (err) {
                 reject(err)
             }

@@ -19,6 +19,12 @@ dd
   div
     base-btn.btn.gap-left(min @click="handleExportPlayListToText") {{ $t('setting__backup_other_export_list_text') }}
     base-btn.btn.gap-left(min @click="handleExportPlayListToCsv") {{ $t('setting__backup_other_export_list_csv') }}
+dd
+  h3#backup_merge {{ '合并歌单' }}
+  div
+    base-btn.btn.gap-left(min @click="handleMergePlayList") {{ '合并歌单文件' }}
+    base-btn.btn.gap-left(min @click="handleMergePlayListFromWeb") {{ '从网盘合并歌单' }}
+    base-btn.btn.gap-left(min @click="handleExportMergePlayListToWeb") {{ '导出需被合并的歌单到网盘' }}
 </template>
 
 <script>
@@ -95,13 +101,30 @@ export default {
       const loveList = allLists.shift().list
       await overwriteListFull({ defaultList, loveList, userList: allLists })
     }
-    const importNewListData = async(lists) => {
+    const importNewListData = async(lists, merge = false) => {
       const allLists = await getAllLists()
       for (const list of lists) {
         try {
           const targetList = allLists.find(l => l.id == list.id)
           if (targetList) {
-            targetList.list = filterMusicList(list.list).map(m => fixNewMusicInfoQuality(m))
+            const newList = filterMusicList(list.list).map(m => fixNewMusicInfoQuality(m))
+            if (!merge) {
+              // 直接覆盖
+              targetList.list = newList
+            } {
+              // 合并
+              const targetIDSet = new Set(targetList.list.map(x => x.id))
+              const notExisted = newList.filter(x => !targetIDSet.has(x.id))
+              if (notExisted.length > 0 && targetList.id !== 'default' && targetList.id !== 'love') {
+                void dialog.confirm({
+                  message: `“${targetList.name}”有${notExisted.length}首歌将被导入，分别为：${notExisted.map(x => x.name + '-' + x.singer).join('、')}`,
+                  cancelButtonText: '不用了',
+                  confirmButtonText: '好的',
+                }).then(confirm => {
+                  if (confirm) targetList.list.unshift(...notExisted)
+                })
+              }
+            }
           } else {
             allLists.push({
               name: list.name,
@@ -267,36 +290,43 @@ export default {
       await saveLxConfigFileWebDAV(data, async(message) => { await dialog({ message, confirmButtonText: '好的' }) })
     }
 
-    const handleImportPlayListFromWeb = async() => {
-      // 导入前先备份一次
-      const dateStr = new Date().toLocaleString('zh', {
-        hour12: false,
-        timeZone: 'Asia/Shanghai',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      }).replace(/\/|:|\s/g, '-')
+    const handleImportPlayListFromWeb = () => {
+      void dialog.confirm({
+        message: '从云端导入歌单后，当前歌单将会被覆盖，是否继续？',
+        cancelButtonText: t('cancel_button_text'),
+        confirmButtonText: t('confirm_button_text'),
+      }).then(async(confirm) => {
+        if (!confirm) return
+        // 导入前先备份一次
+        const dateStr = new Date().toLocaleString('zh', {
+          hour12: false,
+          timeZone: 'Asia/Shanghai',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }).replace(/\/|:|\s/g, '-')
 
-      const backupPath = `./lx_list_${dateStr}.bak.lxmc`
-      console.log('backup playlist before import from webDAV:', backupPath)
-      await exportPlayList(backupPath)
+        const backupPath = `./lx_list_${dateStr}.bak.lxmc`
+        console.log('backup playlist before import from webDAV:', backupPath)
+        await exportPlayList(backupPath)
 
-      let listData
-      try {
-        listData = await readLxConfigFileWebDAV()
-      } catch (error) {
-        await dialog({ message: '导入云端歌单失败，' + error.message, confirmButtonText: '好的' })
-      }
+        let listData
+        try {
+          listData = await readLxConfigFileWebDAV()
+        } catch (error) {
+          await dialog({ message: '导入云端歌单失败，' + error.message, confirmButtonText: '好的' })
+        }
 
-      if (await doImportPlayList(listData) === null) {
-        await dialog({ message: '导入云端歌单成功', confirmButtonText: '好的' })
-      }
+        if (await doImportPlayList(listData) === null) {
+          await dialog({ message: '导入云端歌单成功', confirmButtonText: '好的' })
+        }
+      })
     }
 
-    const doImportPlayList = async(listData) => {
+    const doImportPlayList = async(listData, merge = false) => {
       switch (listData.type) {
         case 'defautlList': // 兼容0.6.2及以前版本的列表数据
           await overwriteListMusics({ listId: LIST_IDS.DEFAULT, musicInfos: filterMusicList(listData.data.list.map(m => toNewMusicInfo(m))) })
@@ -305,14 +335,14 @@ export default {
           await importOldListData(listData.data)
           break
         case 'playList_v2':
-          await importNewListData(listData.data)
+          await importNewListData(listData.data, merge)
           break
         default: { showImportTip(listData.type) }
       }
       return null
     }
 
-    const importPlayList = async(path) => {
+    const importPlayList = async(path, merge = false) => {
       let listData
       try {
         listData = await window.lx.worker.main.readLxConfigFile(path)
@@ -321,7 +351,7 @@ export default {
       }
       console.log(listData.type)
 
-      await doImportPlayList(listData)
+      await doImportPlayList(listData, merge)
     }
     const handleImportPlayList = () => {
       void showSelectDialog({
@@ -342,6 +372,57 @@ export default {
           void importPlayList(result.filePaths[0])
         })
       })
+    }
+
+    const handleMergePlayList = () => {
+      void showSelectDialog({
+        title: t('setting__backup_part_import_list_desc'),
+        properties: ['openFile'],
+        filters: [
+          { name: 'Play List', extensions: ['json', 'lxmc'] },
+          { name: 'All Files', extensions: ['*'] },
+        ],
+      }).then(result => {
+        if (result.canceled) return
+        void importPlayList(result.filePaths[0], true)
+      })
+    }
+
+    const handleMergePlayListFromWeb = async() => {
+      // 操作前先备份一次
+      const dateStr = new Date().toLocaleString('zh', {
+        hour12: false,
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }).replace(/\/|:|\s/g, '-')
+
+      const backupPath = `./lx_list_${dateStr}.bak.lxmc`
+      console.log('backup playlist before import from webDAV:', backupPath)
+      await exportPlayList(backupPath)
+
+      let listData
+      try {
+        listData = await readLxConfigFileWebDAV(true)
+      } catch (error) {
+        await dialog({ message: '合并云端歌单失败，' + error.message, confirmButtonText: '好的' })
+      }
+
+      if (await doImportPlayList(listData, true) !== null) {
+        await dialog({ message: '合并云端歌单失败', confirmButtonText: '好的' })
+      }
+    }
+
+    const handleExportMergePlayListToWeb = async() => {
+      const data = {
+        type: 'playList_v2',
+        data: await getAllLists(),
+      }
+      await saveLxConfigFileWebDAV(data, async(message) => { await dialog({ message, confirmButtonText: '好的' }) }, true)
     }
 
     const exportPlayListToText = async(savePath, isMerge) => {
@@ -418,8 +499,11 @@ export default {
       // currentStting,
       handleExportPlayList,
       handleImportPlayList,
+      handleMergePlayList,
       handleImportPlayListFromWeb,
       handleExportPlayListToWeb,
+      handleMergePlayListFromWeb,
+      handleExportMergePlayListToWeb,
       handleExportSetting,
       handleImportSetting,
       handleExportAllData,
