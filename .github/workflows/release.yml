@@ -72,7 +72,7 @@ jobs:
         run: npm run pack:win
 
       - name: Upload Artifact dmg
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lx-music-desktop-win-exe
           path: |
@@ -112,7 +112,7 @@ jobs:
   #         BT_TOKEN: ${{ secrets.BT_TOKEN }}
 
   #     - name: Upload Artifact
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: lx-music-desktop-x64-Setup
   #         path: build/*-x64-Setup.exe
@@ -149,7 +149,7 @@ jobs:
         run: npm run pack:mac
 
       - name: Upload Artifact dmg
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lx-music-desktop-mac-dmg
           path: |
