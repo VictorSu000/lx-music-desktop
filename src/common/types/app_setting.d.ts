@@ -645,6 +645,11 @@ declare global {
        */
       'sync.client.host': string
 
+      /**
+       * 本地歌单更新时间戳
+       */
+      'sync.s3.localPlayListUpdateTimestamp': number
+
 
       /**
        * 是否启用开放API服务

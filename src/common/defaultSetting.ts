@@ -140,6 +140,7 @@ const defaultSetting: LX.AppSetting = {
   'sync.server.port': '23332',
   'sync.server.maxSsnapshotNum': 5,
   'sync.client.host': '',
+  'sync.s3.localPlayListUpdateTimestamp': 0,
 
   'openAPI.enable': false,
   'openAPI.port': '23330',

@@ -7,6 +7,7 @@ dd
     base-btn.btn.gap-left(min @click="handleExportPlayList") {{ $t('setting__backup_part_export_list') }}
     base-btn.btn.gap-left(min @click="handleImportSetting") {{ $t('setting__backup_part_import_setting') }}
     base-btn.btn.gap-left(min @click="handleExportSetting") {{ $t('setting__backup_part_export_setting') }}
+    base-btn.btn.gap-left(min @click="handleUpdateWithS3") {{ '同步歌单' }}
     base-btn.btn.gap-left(min @click="handleImportPlayListFromWeb") {{ '从网盘导入歌单' }}
     base-btn.btn.gap-left(min @click="handleExportPlayListToWeb") {{ '导出歌单到网盘' }}
 dd
@@ -25,6 +26,9 @@ dd
     base-btn.btn.gap-left(min @click="handleMergePlayList") {{ '合并歌单文件' }}
     base-btn.btn.gap-left(min @click="handleMergePlayListFromWeb") {{ '从网盘合并歌单' }}
     base-btn.btn.gap-left(min @click="handleExportMergePlayListToWeb") {{ '导出需被合并的歌单到网盘' }}
+dd
+  h3#backup_time {{ '本地歌单的更新时间：' + new Date(updateTimestamp).toLocaleString() }}
+
 </template>
 
 <script>
@@ -52,6 +56,7 @@ import { defaultList, loveList, userLists } from '@renderer/store/list/state'
 import { appSetting, updateSetting } from '@renderer/store/setting'
 import migrateSetting from '@common/utils/migrateSetting'
 import { saveLxConfigFileWebDAV, readLxConfigFileWebDAV } from '@common/utils/webdav'
+import { saveLxConfigFileS3, readLxConfigFileS3, saveLxConfigFileModifyTimeS3, readLxConfigFileModifyTimeS3 } from '@common/utils/s3'
 
 
 export default {
@@ -282,6 +287,22 @@ export default {
       })
     }
 
+    const backupPlayList = async() => {
+      const dateStr = new Date().toLocaleString('zh', {
+        hour12: false,
+        timeZone: 'Asia/Shanghai',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }).replace(/\/|:|\s/g, '-')
+      const backupPath = `./lx_list_${dateStr}.bak.lxmc`
+      console.log('backup playlist:', backupPath)
+      await exportPlayList(backupPath)
+    }
+
     const handleExportPlayListToWeb = async() => {
       const data = {
         type: 'playList_v2',
@@ -298,20 +319,7 @@ export default {
       }).then(async(confirm) => {
         if (!confirm) return
         // 导入前先备份一次
-        const dateStr = new Date().toLocaleString('zh', {
-          hour12: false,
-          timeZone: 'Asia/Shanghai',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }).replace(/\/|:|\s/g, '-')
-
-        const backupPath = `./lx_list_${dateStr}.bak.lxmc`
-        console.log('backup playlist before import from webDAV:', backupPath)
-        await exportPlayList(backupPath)
+        await backupPlayList()
 
         let listData
         try {
@@ -324,6 +332,67 @@ export default {
           await dialog({ message: '导入云端歌单成功', confirmButtonText: '好的' })
         }
       })
+    }
+
+    const handleUpdateWithS3 = async() =>  {
+      const localTime = appSetting['sync.s3.localPlayListUpdateTimestamp']
+
+      let modifyTime
+      try {
+        modifyTime = await readLxConfigFileModifyTimeS3()
+      } catch (error) {
+        await dialog({ message: '获取云端歌单更新时间失败，' + error.message, confirmButtonText: t('confirm_button_text') })
+        return
+      }
+
+      if (!(modifyTime && localTime)) {
+        await dialog({ message: '获取更新时间错误', confirmButtonText: t('confirm_button_text') })
+        return
+      }
+
+      if (modifyTime < localTime) {
+        // 本地比云端新，需要上传
+        const confirm = await dialog.confirm({
+          message: `云端歌单较旧（时间：${modifyTime.toLocaleString()}），是否将本地歌单（时间：${localTime.toLocaleString()}）上传到云端？`,
+          cancelButtonText: t('cancel_button_text'),
+          confirmButtonText: t('confirm_button_text'),
+        })
+        if (confirm) {
+          const data = {
+            type: 'playList_v2',
+            data: await getAllLists(),
+          }
+          await saveLxConfigFileS3(data, async(message) => { await dialog({ message, confirmButtonText: '好的' }) })
+          await saveLxConfigFileModifyTimeS3(localTime)
+        }
+        return
+      }
+
+      if (modifyTime === localTime) {
+        await dialog({ message: '本地歌单与云端歌单时间相同，无需更新', confirmButtonText: t('confirm_button_text') })
+        return
+      }
+
+      // 云端比本地新，下载覆盖
+      const confirm = await dialog.confirm({
+        message: `云端歌单较新（时间：${modifyTime.toLocaleString()}），是否将云端歌单（时间：${localTime.toLocaleString()}）导入到本地？`,
+        cancelButtonText: t('cancel_button_text'),
+        confirmButtonText: t('confirm_button_text'),
+      })
+      if (!confirm) return
+      // 导入前先备份一次
+      await backupPlayList()
+      let listData
+      try {
+        listData = await readLxConfigFileS3()
+      } catch (error) {
+        await dialog({ message: '获取云端歌单失败，' + error.message, confirmButtonText: '好的' })
+        return
+      }
+      if (await doImportPlayList(listData) === null) {
+        updateSetting({ 'sync.s3.localPlayListUpdateTimestamp': modifyTime })
+        await dialog({ message: '导入云端歌单成功', confirmButtonText: '好的' })
+      }
     }
 
     const doImportPlayList = async(listData, merge = false) => {
@@ -390,20 +459,7 @@ export default {
 
     const handleMergePlayListFromWeb = async() => {
       // 操作前先备份一次
-      const dateStr = new Date().toLocaleString('zh', {
-        hour12: false,
-        timeZone: 'Asia/Shanghai',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      }).replace(/\/|:|\s/g, '-')
-
-      const backupPath = `./lx_list_${dateStr}.bak.lxmc`
-      console.log('backup playlist before import from webDAV:', backupPath)
-      await exportPlayList(backupPath)
+      await backupPlayList()
 
       let listData
       try {
@@ -495,8 +551,11 @@ export default {
     //   window.eventHub.off(eventBaseName.set_config, handleUpdateSetting)
     // })
 
+    const updateTimestamp = computed(() => appSetting['sync.s3.localPlayListUpdateTimestamp'])
+
     return {
       // currentStting,
+      updateTimestamp,
       handleExportPlayList,
       handleImportPlayList,
       handleMergePlayList,
@@ -504,6 +563,7 @@ export default {
       handleExportPlayListToWeb,
       handleMergePlayListFromWeb,
       handleExportMergePlayListToWeb,
+      handleUpdateWithS3,
       handleExportSetting,
       handleImportSetting,
       handleExportAllData,

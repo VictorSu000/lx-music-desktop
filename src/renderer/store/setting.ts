@@ -121,3 +121,11 @@ export const setPlayDetailLyricAlign = (align: LX.AppSetting['playDetail.style.a
 export const setEnableAudioVisualization = (enable: boolean) => {
   updateSetting({ 'player.audioVisualization': enable })
 }
+
+/**
+ * 更新本地歌单时间戳
+ * @param timestamp 时间戳
+ */
+export const setLocalPlayListUpdateTimestamp = (timestamp: number) => {
+  updateSetting({ 'sync.s3.localPlayListUpdateTimestamp': timestamp })
+}

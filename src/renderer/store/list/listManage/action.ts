@@ -9,13 +9,16 @@ import {
 import { overwriteListPosition, overwriteListUpdateInfo, removeListPosition, removeListUpdateInfo } from '@renderer/utils/data'
 import { LIST_IDS } from '@common/constants'
 import { arrPush, arrUnshift } from '@common/utils/common'
+import { setLocalPlayListUpdateTimestamp } from '@renderer/store/setting'
 
 export const setUserLists = (lists: LX.List.UserListInfo[]) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   userLists.splice(0, userLists.length, ...lists)
   return userLists
 }
 
 export const setMusicList = (listId: string, musicList: LX.Music.MusicInfo[]) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const list = markRawList(musicList)
   allMusicList.set(listId, list)
   return list
@@ -23,6 +26,7 @@ export const setMusicList = (listId: string, musicList: LX.Music.MusicInfo[]) =>
 
 const overwriteMusicList = (id: string, list: LX.Music.MusicInfo[]) => {
   // console.log(id, list)
+  setLocalPlayListUpdateTimestamp(Date.now())
   markRawList(list)
   let targetList = allMusicList.get(id)
   if (targetList) {
@@ -33,6 +37,7 @@ const overwriteMusicList = (id: string, list: LX.Music.MusicInfo[]) => {
   }
 }
 const removeMusicList = (id: string) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   allMusicList.delete(id)
 }
 
@@ -43,6 +48,7 @@ const createUserList = ({
   sourceListId,
   locationUpdateTime,
 }: LX.List.UserListInfo, position: number) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   if (position < 0 || position >= userLists.length) {
     userLists.push({
       name,
@@ -70,6 +76,7 @@ const updateList = ({
   meta,
   locationUpdateTime,
 }: LX.List.UserListInfo & { meta?: { id?: string } }) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   let targetList
   switch (id) {
     case defaultList.id:
@@ -90,6 +97,7 @@ const updateList = ({
 }
 
 const removeUserList = (id: string) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const index = userLists.findIndex(l => l.id == id)
   if (index < 0) return
   userLists.splice(index, 1)
@@ -97,6 +105,7 @@ const removeUserList = (id: string) => {
 }
 
 const overwriteUserList = (lists: LX.List.UserListInfo[]) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   userLists.splice(0, userLists.length, ...lists)
 }
 
@@ -107,6 +116,7 @@ const overwriteUserList = (lists: LX.List.UserListInfo[]) => {
 
 
 export const listDataOverwrite = ({ defaultList, loveList, userList, tempList }: MakeOptional<LX.List.ListDataFull, 'tempList'>): string[] => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const updatedListIds: string[] = []
   const newUserIds: string[] = []
   const newUserListInfos = userList.map(({ list, ...listInfo }) => {
@@ -151,6 +161,7 @@ export const userListCreate = ({ name, id, source, sourceListId, position, locat
   position: number
   locationUpdateTime: number | null
 }) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   if (userLists.some(item => item.id == id)) return
   const newList: LX.List.UserListInfo = {
     name,
@@ -163,6 +174,7 @@ export const userListCreate = ({ name, id, source, sourceListId, position, locat
 }
 
 export const userListsRemove = (ids: string[]) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const changedIds = []
   for (const id of ids) {
     removeUserList(id)
@@ -177,12 +189,14 @@ export const userListsRemove = (ids: string[]) => {
 }
 
 export const userListsUpdate = (listInfos: LX.List.UserListInfo[]) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   for (const info of listInfos) {
     updateList(info)
   }
 }
 
 export const userListsUpdatePosition = (position: number, ids: string[]) => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const newUserLists = [...userLists]
 
   // console.log(position, ids)
@@ -205,12 +219,14 @@ export const userListsUpdatePosition = (position: number, ids: string[]) => {
 }
 
 export const listMusicOverwrite = (listId: string, musicInfos: LX.Music.MusicInfo[]): string[] => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const isExist = allMusicList.has(listId)
   overwriteMusicList(listId, musicInfos)
   return isExist || listId == loveList.id ? [listId] : []
 }
 
 export const listMusicClear = (ids: string[]): string[] => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const changedIds: string[] = []
   for (const id of ids) {
     const list = allMusicList.get(id)
@@ -222,6 +238,7 @@ export const listMusicClear = (ids: string[]): string[] => {
 }
 
 export const listMusicAdd = (id: string, musicInfos: LX.Music.MusicInfo[], addMusicLocationType: LX.AddMusicLocationType): string[] => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const targetList = allMusicList.get(id)
   if (!targetList) return id == loveList.id ? [id] : []
 
@@ -247,6 +264,7 @@ export const listMusicAdd = (id: string, musicInfos: LX.Music.MusicInfo[], addMu
 }
 
 export const listMusicMove = (fromId: string, toId: string, musicInfos: LX.Music.MusicInfo[], addMusicLocationType: LX.AddMusicLocationType): string[] => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   return [
     ...listMusicRemove(fromId, musicInfos.map(musicInfo => musicInfo.id)),
     ...listMusicAdd(toId, musicInfos, addMusicLocationType),
@@ -254,6 +272,7 @@ export const listMusicMove = (fromId: string, toId: string, musicInfos: LX.Music
 }
 
 export const listMusicRemove = (listId: string, ids: string[]): string[] => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   let targetList = allMusicList.get(listId)
   if (!targetList) return listId == loveList.id ? [listId] : []
 
@@ -266,6 +285,7 @@ export const listMusicRemove = (listId: string, ids: string[]): string[] => {
 }
 
 export const listMusicUpdateInfo = (musicInfos: LX.List.ListActionMusicUpdate): string[] => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   const updateListIds = new Set<string>()
   for (const { id, musicInfo } of musicInfos) {
     const targetList = allMusicList.get(id)
@@ -287,6 +307,7 @@ export const listMusicUpdateInfo = (musicInfos: LX.List.ListActionMusicUpdate): 
 }
 
 export const listMusicUpdatePosition = async(listId: string, position: number, ids: string[]): Promise<string[]> => {
+  setLocalPlayListUpdateTimestamp(Date.now())
   let targetList = allMusicList.get(listId)
   if (!targetList) return listId == loveList.id ? [listId] : []
 
