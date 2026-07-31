@@ -12,6 +12,8 @@
     <layout-pact-modal />
     <layout-sync-mode-modal />
     <layout-sync-auth-code-modal />
+    <layout-webdav-sync-conflict-modal />
+    <layout-webdav-sync-result-modal />
     <layout-play-detail />
   </div>
 </template>

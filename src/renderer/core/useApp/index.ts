@@ -4,6 +4,7 @@ import { proxy, isFullscreen, themeId } from '@renderer/store'
 import { appSetting } from '@renderer/store/setting'
 
 import useSync from './useSync'
+import useWebdavSync from './useWebdavSync'
 import useOpenAPI from './useOpenAPI'
 import useStatusbarLyric from './useStatusbarLyric'
 import useUpdate from './useUpdate'
@@ -38,6 +39,7 @@ export default () => {
 
   useUpdate()
   useSettingSync()
+  useWebdavSync()
 
   void getEnvParams().then(envParams => {
     // 移除代理相关的环境变量设置，防止请求库自动应用它们

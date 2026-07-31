@@ -7,6 +7,7 @@ import kw_decodeLyric from './kw_decodeLyric'
 import tx_decodeLyric from './tx_decodeLyric'
 import userApi from './userApi'
 import sync from './sync'
+import webdavSync from './webdavSync'
 import data from './data'
 import music from './music'
 import download from './download'
@@ -18,6 +19,7 @@ export * from './app'
 export * from './hotKey'
 export * from './userApi'
 export * from './sync'
+export * from './webdavSync'
 export * from './process'
 
 let isInitialized = false
@@ -34,6 +36,7 @@ export default () => {
   tx_decodeLyric()
   userApi()
   sync()
+  webdavSync()
   data()
   music()
   download()

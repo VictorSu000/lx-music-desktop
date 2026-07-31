@@ -154,6 +154,8 @@ const modules = {
     download_list_update: 'download_list_update',
     download_list_remove: 'download_list_remove',
     download_list_clear: 'download_list_clear',
+
+    webdav_sync_action: 'webdav_sync_action',
   },
   winLyric: {
     close: 'close',

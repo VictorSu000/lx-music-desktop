@@ -78,6 +78,30 @@ export const openAPI = reactive({
   message: '',
 })
 
+export const webdavSync: {
+  /** 正在等待用户处理的冲突 */
+  conflict: {
+    isShow: boolean
+    requestId: string
+    info: LX.WebDAVSync.ConflictInfo | null
+  }
+  /** 同步完成后要展示给用户的变更详情 */
+  result: {
+    isShow: boolean
+    data: LX.WebDAVSync.SyncResult | null
+  }
+} = reactive({
+  conflict: {
+    isShow: false,
+    requestId: '',
+    info: null,
+  },
+  result: {
+    isShow: false,
+    data: null,
+  },
+})
+
 
 export const windowSizeActive = computed(() => {
   return windowSizeList.find(i => i.id === appSetting['common.windowSizeId']) ?? windowSizeList[0]

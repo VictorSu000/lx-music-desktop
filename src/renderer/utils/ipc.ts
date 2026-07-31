@@ -791,13 +791,33 @@ export const sendSyncAction = async(action: LX.Sync.SyncServiceActions) => {
 }
 
 /**
+ * 监听 WebDAV 歌单同步事件
+ * @param listener
+ * @returns
+ */
+export const onWebdavSyncAction = (listener: LX.IpcRendererEventListenerParams<LX.WebDAVSync.MainWindowActions>): RemoveListener => {
+  rendererOn(WIN_MAIN_RENDERER_EVENT_NAME.webdav_sync_action, listener)
+  return () => {
+    rendererOff(WIN_MAIN_RENDERER_EVENT_NAME.webdav_sync_action, listener)
+  }
+}
+
+/**
+ * 发送 WebDAV 歌单同步事件
+ * @param action
+ * @returns
+ */
+export const sendWebdavSyncAction = async(action: LX.WebDAVSync.RendererActions) => {
+  return rendererInvoke<LX.WebDAVSync.RendererActions>(WIN_MAIN_RENDERER_EVENT_NAME.webdav_sync_action, action)
+}
+
+/**
  * 获取同步服务端连接设备历史列表
  * @returns
  */
 export const getSyncServerDevices = () => {
   return rendererInvoke<LX.Sync.ServerDevices>(WIN_MAIN_RENDERER_EVENT_NAME.sync_get_server_devices)
 }
-
 /**
  * 移除同步服务端连接设备
  * @returns
