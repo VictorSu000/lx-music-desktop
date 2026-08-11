@@ -146,7 +146,9 @@ jobs:
           sed -i.bak 's/password: ""/password: "${{ secrets.WEBDAV_PASSWORD }}"/' src/common/utils/webdav.ts
 
       - name: Pack package
-        run: npm run pack:mac
+        run: |
+          npm run pack:mac
+          npm run pack:mac:dmg:arm64
 
       - name: Upload Artifact dmg
         uses: actions/upload-artifact@v4
@@ -155,6 +157,11 @@ jobs:
           path: |
             build/*.dmg
             !build/*-arm64.dmg
+      - name: Upload Artifact dmg arm64
+        uses: actions/upload-artifact@v4
+        with:
+          name: lx-music-desktop-mac-dmg-arm64
+          path: build/*-arm64.dmg
 
   # Linux:
   #   name: Linux
