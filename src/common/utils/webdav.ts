@@ -2,9 +2,9 @@ import { createAdapter } from 'webdav-fs'
 import { gzipData, gunzipData } from './nodejs'
 
 // TODO 填上URL、用户名密码
-const WEBDAV_URL = ''
-const WEBDAV_USERNAME = ''
-const WEBDAV_PASSWORD = ''
+const WEBDAV_URL = ""
+const WEBDAV_USERNAME = ""
+const WEBDAV_PASSWORD = ""
 
 const rootDir = '/lx-music'
 const configFile = `${rootDir}/lx_list.lxmc`

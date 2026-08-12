@@ -63,9 +63,9 @@ jobs:
       - name: Add WebDAV
         run: |
           $filecontent = Get-Content -Path src/common/utils/webdav.ts;
-          $newContent = $fileContent.replace('createAdapter(""', 'createAdapter("${{ secrets.WEBDAV_URL }}"');
-          $newContent = $newContent.replace('username: ""', 'username: "${{ secrets.WEBDAV_USERNAME }}"');
-          $newContent = $newContent.replace('password: ""', 'password: "${{ secrets.WEBDAV_PASSWORD }}"');
+          $newContent = $fileContent.replace('WEBDAV_URL = ""', 'WEBDAV_URL = "${{ secrets.WEBDAV_URL }}"');
+          $newContent = $newContent.replace('WEBDAV_USERNAME = ""', 'WEBDAV_USERNAME = "${{ secrets.WEBDAV_USERNAME }}"');
+          $newContent = $newContent.replace('WEBDAV_PASSWORD = ""', 'WEBDAV_PASSWORD = "${{ secrets.WEBDAV_PASSWORD }}"');
           $newContent | Set-Content -Path src/common/utils/webdav.ts
         
       - name: Pack package
@@ -141,9 +141,9 @@ jobs:
 
       - name: Add WebDAV
         run: |
-          sed -i.bak 's/const wfs = createAdapter("", {/const wfs = createAdapter("${{ secrets.WEBDAV_URL }}", {/' src/common/utils/webdav.ts
-          sed -i.bak 's/username: "",/username: "${{ secrets.WEBDAV_USERNAME }}",/' src/common/utils/webdav.ts
-          sed -i.bak 's/password: ""/password: "${{ secrets.WEBDAV_PASSWORD }}"/' src/common/utils/webdav.ts
+          sed -i.bak 's/WEBDAV_URL = ""/WEBDAV_URL = "${{ secrets.WEBDAV_URL }}"/' src/common/utils/webdav.ts
+          sed -i.bak 's/WEBDAV_USERNAME = ""/WEBDAV_USERNAME = "${{ secrets.WEBDAV_USERNAME }}"/' src/common/utils/webdav.ts
+          sed -i.bak 's/WEBDAV_PASSWORD = ""/WEBDAV_PASSWORD = "${{ secrets.WEBDAV_PASSWORD }}"/' src/common/utils/webdav.ts
 
       - name: Pack package
         run: |
